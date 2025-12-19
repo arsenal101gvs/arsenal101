@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO & BRANDING -->
+    <title>Arsenal101 | L'Arsenal Digital Pro</title>
+    <meta name="description" content="Arsenal101 est le hub ultime pour l'élite digitale. Accédez aux meilleurs outils IA, Finance et Sport. Automatisez, Investissez, Performer.">
+    <meta name="keywords" content="IA, Finance, Trading, Sport, Performance, Arsenal101, Arsenal Digital">
+    <meta name="author" content="Arsenal101 Inc.">
+    
+    <!-- OPEN GRAPH -->
+    <meta property="og:title" content="Arsenal101 | L'Arsenal Digital Pro">
+    <meta property="og:description" content="Le hub central pour l'intelligence artificielle, la finance de marché et la haute performance sportive.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200">
+    <meta property="og:url" content="https://arsenal101.fr">
+    <meta property="og:type" content="website">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root { 
+            --ia: 168, 85, 247; --fi: 16, 185, 129; --sp: 244, 63, 94; --bg: 2, 6, 23; --accent: var(--ia);
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: rgb(var(--bg)); 
+            color: #f1f5f9; 
+            overflow-x: hidden;
+        }
+
+        .section-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            opacity: 0.15; mix-blend-mode: luminosity;
+            mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+        }
+        #view-ia .section-bg { background-image: url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1500'); }
+        #view-finance .section-bg { background-image: url('https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1500'); }
+        #view-sport .section-bg { background-image: url('https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1500'); }
+
+        .page-view { display: none; min-height: 100vh; width: 100%; position: relative; padding-bottom: 5rem; }
+        .page-view.active { display: block; animation: fadeIn 0.6s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .split-wrapper { display: flex; height: 100vh; width: 100%; overflow: hidden; background: #000; }
+        .split-pane { 
+            position: relative; width: 33.33%; height: 100%; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        @media (min-width: 1024px) {
+            .split-pane:hover { width: 50%; }
+            .split-wrapper:hover .split-pane:not(:hover) { width: 25%; filter: brightness(0.3) blur(4px); }
+        }
+        
+        .pane-bg { transition: transform 8s ease; }
+        .split-pane:hover .pane-bg { transform: scale(1.1); }
+
+        .glass { background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .bento-card { transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.03); overflow: hidden; background: rgba(255,255,255,0.03); }
+        .bento-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.08); border-color: rgba(var(--accent), 0.5); }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+        .tool-btn { font-size: 0.75rem; font-weight: 600; text-align: left; padding: 0.75rem; border-radius: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tool-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(var(--accent), 0.4); color: white; }
+        
+        .news-ticker-item { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; animation: fadeInItem 0.5s ease; }
+        @keyframes fadeInItem { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        input, textarea { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; transition: border 0.3s; width: 100%; }
+        input:focus, textarea:focus { border-color: rgba(var(--accent), 0.5); }
+
+        @media (max-width: 1023px) { 
+            .split-wrapper { flex-direction: column; } 
+            .split-pane { width: 100% !important; height: 33.33% !important; } 
+        }
+
+        #aiContent img { border-radius: 1.5rem; margin: 2rem 0; width: 100%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="selection:bg-white/20">
+
+    <!-- Error Alert (Custom Message Box) -->
+    <div id="errorAlert" class="fixed bottom-6 right-6 z-[200] hidden">
+        <div class="bg-red-500/90 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-red-400 max-w-sm">
+            <span class="text-xl">⚠️</span>
+            <div class="flex flex-col">
+                <div class="text-xs font-bold uppercase tracking-wider opacity-70">Diagnostic Système</div>
+                <div class="text-sm font-bold leading-tight mt-1" id="errorMsg">Erreur</div>
+            </div>
+            <button onclick="document.getElementById('errorAlert').classList.add('hidden')" class="opacity-50 hover:opacity-100 ml-auto pl-4">✕</button>
+        </div>
+    </div>
+
+    <!-- Browser Modal -->
+    <div id="browserModal" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center p-0 sm:p-4">
+        <div class="glass w-full h-full sm:rounded-[2rem] flex flex-col overflow-hidden border border-white/10 shadow-2xl">
+            <div class="p-4 flex items-center justify-between bg-white/5 border-b border-white/10">
+                <div class="flex items-center gap-4">
+                    <button onclick="window.toggleModal('browserModal')" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20">✕</button>
+                    <span id="browserTitle" class="text-xs font-bold uppercase tracking-widest opacity-60">Navigateur Arsenal101</span>
+                </div>
+                <button id="externalBtn" class="text-[10px] font-black bg-white text-black px-5 py-2 rounded-full">OUVRIR EXTERNE ↗</button>
+            </div>
+            <div class="flex-1 bg-white relative">
+                <iframe id="browserIframe" class="w-full h-full border-none" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Modal -->
+    <div id="aiModal" class="fixed inset-0 bg-black/95 z-[110] hidden flex items-center justify-center p-0 sm:p-4">
+        <div class="glass w-full max-w-4xl h-full sm:h-[90vh] sm:rounded-[2.5rem] overflow-hidden relative border border-white/10 flex flex-col bg-[#0b0c15]">
+            <button onclick="window.toggleModal('aiModal')" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md z-20 text-white">✕</button>
+            <div id="articleImageHeader" class="h-64 md:h-80 w-full overflow-hidden shrink-0 relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c15] to-transparent z-10"></div>
+                <img id="modalCoverImage" src="" alt="Cover" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 md:p-16">
+                <div id="aiContent" class="prose prose-invert prose-xl max-w-none text-slate-200"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Config Modal -->
+    <div id="apiModal" class="fixed inset-0 bg-black/95 z-[150] hidden flex items-center justify-center p-6 backdrop-blur-3xl">
+        <div class="glass rounded-[2.5rem] p-12 max-w-md w-full border border-white/10 text-center">
+            <h3 class="text-2xl font-extrabold text-white mb-3 tracking-tighter">Moteur Gemini</h3>
+            <p class="text-xs text-slate-400 mb-6">Activez l'Alchimiste, l'Oracle et le Protocole.</p>
+            <input type="password" id="apiKeyInput" placeholder="Votre Clé API Gemini..." class="mb-8 text-center">
+            <div class="flex flex-col gap-4">
+                <button onclick="window.saveApiKey()" class="w-full py-4 bg-white text-black rounded-2xl font-bold">Activer l'Intelligence</button>
+                <button onclick="window.toggleModal('apiModal')" class="text-slate-500 text-sm">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOME VIEW -->
+    <section id="view-home" class="page-view active">
+        <div class="split-wrapper">
+            <div onclick="window.switchView('ia')" class="split-pane group">
+                <div class="pane-bg absolute inset-0 opacity-50 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200');"></div>
+                <div class="pane-content text-center relative z-10">
+                    <h1 class="text-7xl md:text-9xl font-black text-white tracking-tighter">101<span class="text-purple-600">IA</span></h1>
+                    <p class="text-[10px] tracking-[0.6em] font-black opacity-60 uppercase mt-4">Le Futur Automatisé</p>
+                </div>
+            </div>
+            <div onclick="window.switchView('finance')" class="split-pane group">
+                <div class="pane-bg absolute inset-0 opacity-50 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200');"></div>
+                <div class="pane-content text-center relative z-10">
+                    <h1 class="text-7xl md:text-9xl font-black text-white tracking-tighter">101<span class="text-emerald-600">FI</span></h1>
+                    <p class="text-[10px] tracking-[0.6em] font-black opacity-60 uppercase mt-4">La Stratégie Capital</p>
+                </div>
+            </div>
+            <div onclick="window.switchView('sport')" class="split-pane group border-r-0">
+                <div class="pane-bg absolute inset-0 opacity-50 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200');"></div>
+                <div class="pane-content text-center relative z-10">
+                    <h1 class="text-7xl md:text-9xl font-black text-white tracking-tighter">101<span class="text-rose-600">SP</span></h1>
+                    <p class="text-[10px] tracking-[0.6em] font-black opacity-60 uppercase mt-4">L'Optimisation Humaine</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Global -->
+    <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl z-50 hidden">
+        <div class="glass rounded-full px-8 py-3 flex justify-between items-center bg-[#020617]/80">
+            <button onclick="window.switchView('home')" class="text-xs font-black opacity-60 hover:opacity-100 tracking-tighter transition-opacity">← HUB ARSENAL101</button>
+            <div class="text-xl font-black tracking-tighter">ARSENAL101</div>
+            <div class="flex items-center gap-4">
+                <span id="live-time" class="hidden md:block text-[10px] font-mono opacity-40 uppercase tracking-widest">00:00:00</span>
+                <button onclick="window.toggleModal('apiModal')" class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                    <div id="apiStatus" class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                    <span class="text-[9px] font-bold uppercase tracking-wider">IA Config</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- IA SECTION -->
+    <section id="view-ia" class="page-view pt-28">
+        <div class="section-bg"></div>
+        <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
+            <div class="glass rounded-[2.5rem] p-12 border-l-4 border-purple-500 bg-gradient-to-r from-purple-900/20 to-transparent">
+                <h2 class="text-5xl font-black tracking-tighter leading-none mb-4">L'IA n'est pas un gadget.<br><span class="text-purple-400">C'est votre bras de levier.</span></h2>
+                <p class="opacity-60 max-w-2xl">L'Arsenal101 IA regroupe les outils pour automatiser votre succès.</p>
+            </div>
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="space-y-8">
+                    <!-- Alchimiste -->
+                    <div class="glass p-8 rounded-[2rem] border-t-2 border-purple-500">
+                        <h3 class="font-black text-xl mb-4">L'Alchimiste <span class="text-purple-400">Prompt</span></h3>
+                        <textarea id="promptInput" rows="3" placeholder="Votre idée brute..." class="text-sm mb-4"></textarea>
+                        <button onclick="window.generatePrompt()" class="w-full py-4 bg-purple-600 text-white font-bold rounded-xl active:scale-95 transition-all">✨ Sublimer le Prompt</button>
+                        <div id="promptOutput" class="mt-6 hidden p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono"></div>
+                    </div>
+                    <!-- Actu -->
+                    <div class="glass rounded-[2rem] p-6">
+                        <h3 class="font-black text-sm uppercase tracking-widest mb-4">Google Actu Live</h3>
+                        <div id="ia-google-feed" class="space-y-1 text-sm min-h-[160px]"></div>
+                    </div>
+                    <div id="ia-news-grid" class="space-y-4"></div>
+                </div>
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="glass p-8 rounded-[3rem]">
+                        <h4 class="font-bold text-purple-400 mb-6 text-xs uppercase tracking-widest">Arsenal Complet IA</h4>
+                        <div id="ia-tools-grid" class="tools-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINANCE SECTION -->
+    <section id="view-finance" class="page-view pt-28">
+        <div class="section-bg"></div>
+        <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
+            <div class="glass rounded-[2.5rem] p-12 border-l-4 border-emerald-500 bg-gradient-to-r from-emerald-900/20 to-transparent">
+                <h2 class="text-5xl font-black tracking-tighter leading-none mb-4">Le capital ne dort jamais.<br><span class="text-emerald-400">Allocations & Stratégies.</span></h2>
+            </div>
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="space-y-8">
+                    <!-- Oracle -->
+                    <div class="glass p-8 rounded-[2rem] border-t-2 border-emerald-500">
+                        <h3 class="font-black text-xl mb-4">L'Oracle <span class="text-emerald-400">Finance</span></h3>
+                        <textarea id="financeInput" rows="3" placeholder="Votre profil d'investisseur..." class="text-sm mb-4"></textarea>
+                        <button onclick="window.generateFinanceStrategy()" class="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl active:scale-95 transition-all">🔮 Définir la Stratégie</button>
+                        <div id="financeOutput" class="mt-6 hidden p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono"></div>
+                    </div>
+                    <div class="glass rounded-[2rem] p-6"><div id="finance-google-feed" class="space-y-1 text-sm min-h-[160px]"></div></div>
+                    <div id="fi-news-grid" class="space-y-4"></div>
+                </div>
+                <div class="lg:col-span-2"><div id="fi-tools-grid" class="tools-grid glass p-8 rounded-[3rem]"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPORT SECTION -->
+    <section id="view-sport" class="page-view pt-28">
+        <div class="section-bg"></div>
+        <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
+            <div class="glass rounded-[2.5rem] p-12 border-l-4 border-rose-500 bg-gradient-to-r from-rose-900/20 to-transparent">
+                <h2 class="text-5xl font-black tracking-tighter leading-none mb-4">Le corps est une machine.<br><span class="text-rose-400">Optimisation Totale.</span></h2>
+            </div>
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="space-y-8">
+                    <!-- Protocole -->
+                    <div class="glass p-8 rounded-[2rem] border-t-2 border-rose-500">
+                        <h3 class="font-black text-xl mb-4">Le Protocole <span class="text-rose-400">Sport</span></h3>
+                        <textarea id="sportInput" rows="3" placeholder="Votre objectif athlétique..." class="text-sm mb-4"></textarea>
+                        <button onclick="window.generateTrainingPlan()" class="w-full py-4 bg-rose-600 text-white font-bold rounded-xl active:scale-95 transition-all">⚡️ Créer le Protocole</button>
+                        <div id="sportOutput" class="mt-6 hidden p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono"></div>
+                    </div>
+                    <div class="glass rounded-[2rem] p-6"><div id="sport-google-feed" class="space-y-1 text-sm min-h-[160px]"></div></div>
+                    <div id="sp-news-grid" class="space-y-4"></div>
+                </div>
+                <div class="lg:col-span-2"><div id="sp-tools-grid" class="tools-grid glass p-8 rounded-[3rem]"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // --- PRODUCTION FIREBASE CONFIG ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyCYsw6YtHbloD4tSJO4-4t1G8TAditUezE",
+          authDomain: "arsenal101-f64ab.firebaseapp.com",
+          projectId: "arsenal101-f64ab",
+          storageBucket: "arsenal101-f64ab.firebasestorage.app",
+          messagingSenderId: "148334934082",
+          appId: "1:148334934082:web:94ea6e6b38d2a01cfc15db",
+          measurementId: "G-Q4C2PHQCGE"
+        };
+        const appId = "arsenal101-f64ab";
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let user = null;
+        let tickerInt = null;
+        let activeSnapshots = [];
+
+        // --- AUTH INIT & DIAGNOSTIC ---
+        const initAuth = async () => {
+            try {
+                // FORCE ANONYMOUS AUTH FOR PRODUCTION KEYS
+                // Since __initial_auth_token belongs to the dev environment, it will fail with production keys.
+                // We use signInAnonymously directly.
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error("Auth Failure:", e);
+                let msg = "Erreur de connexion inconnue.";
+                
+                // Diagnostic précis pour l'utilisateur
+                if (e.code === 'auth/operation-not-allowed') {
+                    msg = "ACTION REQUISE : Activez 'Anonyme' dans Firebase > Authentication > Sign-in method.";
+                } else if (e.code === 'auth/unauthorized-domain') {
+                    msg = "DOMAINE NON AUTORISÉ : Ajoutez ce domaine dans Firebase Console > Authentication > Settings.";
+                } else if (e.code === 'auth/network-request-failed') {
+                    msg = "Erreur réseau. Vérifiez votre connexion internet.";
+                } else if (e.code === 'auth/custom-token-mismatch') {
+                    msg = "Erreur de configuration. Passage en mode Anonyme forcé.";
+                }
+                
+                showError(msg);
+            }
+        };
+
+        onAuthStateChanged(auth, (u) => { 
+            user = u; 
+            updateGlobalUI();
+        });
+
+        initAuth();
+
+        function showError(msg) {
+            const alert = document.getElementById('errorAlert');
+            if(alert) {
+                document.getElementById('errorMsg').innerText = msg;
+                alert.classList.remove('hidden');
+                // On garde l'erreur visible plus longtemps si c'est une action requise
+                const duration = msg.includes("ACTION") ? 15000 : 5000;
+                setTimeout(() => alert.classList.add('hidden'), duration);
+            }
+        }
+
+        // --- GEMINI ---
+        async function callGemini(prompt, outputId) {
+            const key = localStorage.getItem('arsenal101_key');
+            if(!key) { window.toggleModal('apiModal'); return; }
+            const out = document.getElementById(outputId);
+            out.classList.remove('hidden');
+            out.innerHTML = "<span class='animate-pulse'>Analyse en cours...</span>";
+            try {
+                const genAI = new GoogleGenerativeAI(key);
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const result = await model.generateContent(prompt);
+                out.innerHTML = marked.parse(result.response.text());
+            } catch(e) { out.innerHTML = "<span class='text-red-400'>Erreur API.</span>"; }
+        }
+
+        window.generatePrompt = () => callGemini(`Expert Prompt Engineer. Optimise ce prompt pour Midjourney et GPT : "${document.getElementById('promptInput').value}"`, 'promptOutput');
+        window.generateFinanceStrategy = () => callGemini(`Conseiller financier Arsenal101. Crée une stratégie pour ce profil : "${document.getElementById('financeInput').value}"`, 'financeOutput');
+        window.generateTrainingPlan = () => callGemini(`Coach Elite. Crée un protocole pour cet objectif : "${document.getElementById('sportInput').value}"`, 'sportOutput');
+
+        window.saveApiKey = () => {
+            const val = document.getElementById('apiKeyInput').value;
+            if(val) { localStorage.setItem('arsenal101_key', val); window.toggleModal('apiModal'); updateGlobalUI(); }
+        };
+
+        function updateGlobalUI() {
+            const hasKey = localStorage.getItem('arsenal101_key');
+            const status = document.getElementById('apiStatus');
+            if(status) status.className = `w-2 h-2 rounded-full ${hasKey ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]'}`;
+        }
+
+        // --- NAVIGATION & DATA ---
+        window.switchView = (view) => {
+            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+            const nav = document.getElementById('main-nav');
+            
+            // Clean listeners
+            activeSnapshots.forEach(unsub => unsub());
+            activeSnapshots = [];
+
+            if(view === 'home') {
+                nav.classList.add('hidden');
+            } else {
+                nav.classList.remove('hidden');
+                const queries = { ia: 'IA Tech France', finance: 'Bourse France CAC40', sport: 'Actualité Sport France' };
+                const cols = { ia: 'articles', finance: 'articles_finance', sport: 'articles_sport' };
+                startTicker(queries[view], `${view}-google-feed`);
+                
+                // Fallback rendering
+                loadFirestoreNews(cols[view], `${view}-news-grid`, view);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        async function startTicker(q, containerId) {
+            if(tickerInt) clearInterval(tickerInt);
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<div class="animate-pulse h-4 bg-white/5 rounded"></div>';
+            try {
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${q}&hl=fr&gl=FR&ceid=FR:fr`)}`);
+                const data = await res.json();
+                let idx = 0;
+                const render = () => {
+                    if(!data.items) return;
+                    const items = data.items.slice(idx, idx+4);
+                    container.innerHTML = items.map(i => `<div class="news-ticker-item cursor-pointer" onclick="window.open('${i.link}')"><div class="font-bold text-white line-clamp-1">${i.title}</div><div class="text-[9px] opacity-40">${new Date(i.pubDate).toLocaleTimeString()}</div></div>`).join('');
+                    idx = (idx + 1) % Math.max(1, data.items.length - 4);
+                };
+                render();
+                tickerInt = setInterval(render, 3000);
+            } catch(e) { container.innerHTML = "Flux indisponible"; }
+        }
+
+        function loadFirestoreNews(col, gridId, type) {
+            if(!user) {
+                 // Fallback immédiat si pas d'auth
+                 renderMockNews(gridId, type);
+                 return; 
+            }
+
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', col);
+            
+            const unsub = onSnapshot(query(colRef, limit(3)), 
+                (snap) => {
+                    const grid = document.getElementById(gridId);
+                    if(snap.empty) {
+                        renderMockNews(gridId, type); // Empty DB -> Mock
+                    } else {
+                        grid.innerHTML = '';
+                        snap.forEach(doc => {
+                            const d = doc.data();
+                            const card = document.createElement('div');
+                            card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5";
+                            card.onclick = () => window.showArticle(d, d.image_url || `https://source.unsplash.com/featured/?${type}`);
+                            card.innerHTML = `<img src="${d.image_url || 'https://via.placeholder.com/80'}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div></div>`;
+                            grid.appendChild(card);
+                        });
+                    }
+                }, 
+                (err) => {
+                    console.error("Firestore Permission Error:", err);
+                    renderMockNews(gridId, type); // Permission Error -> Mock
+                }
+            );
+            activeSnapshots.push(unsub);
+        }
+
+        function renderMockNews(gridId, type) {
+             const grid = document.getElementById(gridId);
+             if(!grid) return;
+             grid.innerHTML = '';
+             const mocks = [
+                 { title: "Mode Démo : Activez 'Anonyme' dans Firebase pour voir le live", image_url: `https://source.unsplash.com/featured/?${type},technology` },
+                 { title: "Exemple de contenu : Tendances et Analyses", image_url: `https://source.unsplash.com/featured/?${type},abstract` },
+                 { title: "Exemple de contenu : Performance et Data", image_url: `https://source.unsplash.com/featured/?${type},future` }
+             ];
+             mocks.forEach(d => {
+                 const card = document.createElement('div');
+                 card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5 opacity-60";
+                 card.onclick = () => window.showArticle({ title: d.title, content: "Ceci est un article de démonstration. Configurez l'authentification Firebase pour voir les vraies données." }, d.image_url);
+                 card.innerHTML = `<img src="${d.image_url}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div><div class="text-[9px] text-yellow-400">Mode Démo</div></div>`;
+                 grid.appendChild(card);
+             });
+        }
+
+        // TOOLS
+        const arsenalIA = ["Midjourney", "ChatGPT 4o", "Claude 3.5", "Runway", "Pika", "Suno", "ElevenLabs", "Zapier", "Make", "Cursor"];
+        const arsenalFI = ["TradingView", "Binance", "MetaMask", "CoinMarketCap", "DefiLlama", "Degiro", "Revolut", "Boursorama", "Waltio", "Finary"];
+        const arsenalSP = ["Strava", "Whoop", "Garmin Connect", "Oura", "MyFitnessPal", "Zwift", "Flashscore", "NBA League Pass", "DAZN", "Sorare"];
+
+        const renderGrid = (id, list) => document.getElementById(id).innerHTML = list.map(t => `<button class="tool-btn" onclick="window.open('https://google.com/search?q=${t}')">${t}</button>`).join('');
+        renderGrid('ia-tools-grid', arsenalIA);
+        renderGrid('fi-tools-grid', arsenalFI);
+        renderGrid('sp-tools-grid', arsenalSP);
+
+        window.toggleModal = id => document.getElementById(id).classList.toggle('hidden');
+        window.showArticle = (d, img) => {
+            window.toggleModal('aiModal');
+            document.getElementById('modalCoverImage').src = img;
+            document.getElementById('aiContent').innerHTML = marked.parse(`# ${d.title}\n\n${d.content || d.articleContent}`);
+        };
+        setInterval(() => { document.getElementById('live-time').innerText = new Date().toLocaleTimeString(); }, 1000);
+    </script>
+</body>
+</html>
