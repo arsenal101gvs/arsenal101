@@ -199,7 +199,7 @@
                         <div id="outputIA" class="mt-6 hidden p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono max-h-[400px] overflow-y-auto"></div>
                     </div>
                     <div class="glass rounded-[2rem] p-6">
-                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50">Flux Tech Temps Réel</h3>
+                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50 text-purple-400">Flux Tech Temps Réel</h3>
                         <div id="ia-google-feed" class="space-y-1 text-sm min-h-[160px]"></div>
                     </div>
                 </div>
@@ -248,7 +248,7 @@
                 </div>
 
                 <div class="glass rounded-[2.5rem] p-8 border-t-2 border-emerald-500">
-                    <h3 class="text-xl font-bold mb-6">🧮 Oracle Oracle</h3>
+                    <h3 class="text-xl font-bold mb-6">🧮 Oracle Finance</h3>
                     <div class="space-y-4">
                         <textarea id="financeInputGemini" rows="2" placeholder="Question sur votre portefeuille..." class="text-xs"></textarea>
                         <button onclick="window.callGemini('finance-oracle')" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">✨ Analyser Allocation</button>
@@ -258,13 +258,23 @@
                 </div>
             </div>
 
-            <!-- Bloc Articles Finance -->
-            <div class="space-y-6">
-                <h3 class="text-xl font-black uppercase tracking-widest text-emerald-400">Analyses Marchés de 101Fi</h3>
-                <div id="fi-articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
+            <div class="grid lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-3 space-y-12">
+                    <!-- Bloc Articles Finance -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-black uppercase tracking-widest text-emerald-400">Analyses Marchés de 101Fi</h3>
+                        <div id="fi-articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    </div>
 
-            <div id="fi-tools-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+                    <div id="fi-tools-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="glass rounded-[2rem] p-6">
+                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50 text-emerald-400">Flux Finance & Bourse</h3>
+                        <div id="finance-google-feed" class="space-y-1 text-sm min-h-[160px]"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -276,13 +286,16 @@
                 <h2 class="text-4xl md:text-5xl font-black tracking-tighter leading-tight">Sport & <span class="text-rose-400">Optimisation</span></h2>
             </div>
 
-            <!-- Bloc Articles Sport -->
-            <div class="space-y-6">
-                <h3 class="text-xl font-black uppercase tracking-widest text-rose-400">Chroniques Performance de 101Sport</h3>
-                <div id="sp-articles-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-            </div>
-
             <div class="grid lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-3 space-y-12">
+                    <!-- Bloc Articles Sport -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-black uppercase tracking-widest text-rose-400">Chroniques Performance de 101Sport</h3>
+                        <div id="sp-articles-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+                    </div>
+
+                    <div id="sp-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                </div>
                 <div class="lg:col-span-1 space-y-8">
                     <div class="glass p-8 rounded-[2rem] border-t-2 border-rose-500">
                         <h3 class="font-black text-xl mb-4">Le Protocole <span class="text-rose-400">Sport</span></h3>
@@ -290,10 +303,10 @@
                         <button onclick="window.callGemini('sport-coach')" class="w-full py-4 bg-rose-600 text-white font-bold rounded-xl active:scale-95 transition-all">✨ Générer Protocole IA</button>
                         <div id="outputSport" class="mt-6 hidden p-4 bg-white/5 rounded-xl border border-white/10 text-xs font-mono max-h-[300px] overflow-y-auto"></div>
                     </div>
-                    <div id="sport-google-feed" class="glass rounded-[2rem] p-6 space-y-1 text-sm min-h-[160px]"></div>
-                </div>
-                <div class="lg:col-span-3">
-                    <div id="sp-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                    <div class="glass rounded-[2rem] p-6">
+                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50 text-rose-400">Flux Actu Sportive</h3>
+                        <div id="sport-google-feed" class="space-y-1 text-sm min-h-[160px]"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -404,16 +417,37 @@
             `).join('');
         }
 
+        // --- RSS TICKER LOGIC ---
+        async function startTicker(q, containerId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.innerHTML = '<div class="animate-pulse h-4 bg-white/5 rounded"></div>';
+            try {
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${q}&hl=fr&gl=FR&ceid=FR:fr`)}&api_key=&t=${Date.now()}`);
+                const data = await res.json();
+                if (data.status !== 'ok') throw new Error();
+                container.innerHTML = data.items.slice(0, 4).map(i => `
+                    <div class="news-ticker-item cursor-pointer hover:bg-white/5" onclick="window.open('${i.link}', '_blank')">
+                        <div class="font-bold text-white text-[11px] line-clamp-2">${i.title}</div>
+                        <div class="text-[9px] opacity-40 uppercase font-mono">${new Date(i.pubDate).toLocaleTimeString('fr-FR')}</div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                container.innerHTML = "<div class='text-[10px] opacity-30 p-4 border border-dashed border-white/10 rounded-xl'>Flux momentanément indisponible.</div>";
+            }
+        }
+
         function loadArticles(col, gridId, color) {
             const container = document.getElementById(gridId);
             if(!container) return;
-            container.innerHTML = '<div class="col-span-full animate-pulse text-xs opacity-50 text-center">Chargement des dernières analyses...</div>';
+            container.innerHTML = '<div class="col-span-full animate-pulse text-xs opacity-50 text-center py-10">Recherche des dernières analyses intelligentes...</div>';
             
+            // On respecte la structure : collection(db, 'artifacts', appId, 'public', 'data', collectionName)
             const colRef = collection(db, 'artifacts', currentAppId, 'public', 'data', col);
             
             onSnapshot(query(colRef, limit(4)), (snap) => {
                 if(snap.empty) {
-                    container.innerHTML = '<div class="col-span-full text-xs opacity-30 italic text-center">Aucune analyse disponible pour le moment.</div>';
+                    container.innerHTML = '<div class="col-span-full text-xs opacity-30 italic text-center py-10">Le moteur de rédaction est en cours de génération. Revenez d\'ici peu.</div>';
                     return;
                 }
                 container.innerHTML = '';
@@ -421,12 +455,12 @@
                     const d = doc.data();
                     const card = document.createElement('div');
                     card.className = `article-bento p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-transform group`;
-                    card.onclick = () => window.showArticle(d, `https://source.unsplash.com/featured/?${color},tech`);
+                    card.onclick = () => window.showArticle(d, `https://source.unsplash.com/featured/?${color},tech,abstract&t=${Math.random()}`);
                     card.innerHTML = `
                         <div class="flex flex-col h-full">
-                            <div class="text-[9px] font-black uppercase tracking-[0.2em] text-${color}-400 mb-2">Analyse Automatique</div>
+                            <div class="text-[9px] font-black uppercase tracking-[0.2em] text-${color}-400 mb-2">IA Journaliste v1.0</div>
                             <h4 class="text-white font-bold text-lg mb-3 line-clamp-2 group-hover:text-${color}-300 transition-colors">${d.title}</h4>
-                            <p class="text-[11px] text-slate-400 line-clamp-3 mb-6">${d.meta_description || "Analyse approfondie de l'actualité récente par notre moteur IA."}</p>
+                            <p class="text-[11px] text-slate-400 line-clamp-3 mb-6">${d.meta_description || "Une analyse exclusive générée par notre intelligence artificielle basée sur les tendances du moment."}</p>
                             <div class="mt-auto flex items-center gap-2 text-[10px] font-bold text-${color}-400">
                                 LIRE L'ANALYSE <i class="fas fa-arrow-right"></i>
                             </div>
@@ -435,60 +469,41 @@
                     container.appendChild(card);
                 });
             }, (err) => {
-                container.innerHTML = '<div class="col-span-full text-xs text-red-400 text-center">Erreur de synchronisation.</div>';
+                container.innerHTML = '<div class="col-span-full text-xs text-red-400 text-center py-10">Erreur de connexion aux archives.</div>';
             });
         }
 
-        // --- MARKET LOGIC (CORRECTED) ---
+        // --- MARKET LOGIC ---
         async function fetchMarketData() {
             try {
-                // Utilisation de l'endpoint public CoinGecko avec sparkline pour les graphes
                 const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=bitcoin,ethereum,solana&sparkline=true&price_change_percentage=24h');
                 const data = await res.json();
                 
                 if (data && data.length > 0) {
                     marketData = data.reduce((acc, coin) => ({ ...acc, [coin.id]: coin }), {});
-                    
-                    // Mise à jour du ticker principal (Bitcoin)
                     const btc = marketData.bitcoin;
                     if (btc) {
                         const btcPriceEl = document.getElementById('ticker-btc');
-                        if (btcPriceEl) {
-                            btcPriceEl.innerText = btc.current_price.toLocaleString('fr-FR') + ' €';
-                        }
+                        if (btcPriceEl) btcPriceEl.innerText = btc.current_price.toLocaleString('fr-FR') + ' €';
                     }
-                    
-                    // Rendu de chaque mini-graphique
                     data.forEach(coin => renderMiniChart(coin));
                 }
             } catch(e) {
-                console.error("Erreur de récupération des prix:", e);
                 const btcPriceEl = document.getElementById('ticker-btc');
                 if (btcPriceEl) btcPriceEl.innerText = "indisponible";
             }
         }
 
         function renderMiniChart(coin) {
-            const canvasMapping = {
-                'bitcoin': 'btcChartMini',
-                'ethereum': 'ethChartMini',
-                'solana': 'solChartMini'
-            };
-            
+            const canvasMapping = { 'bitcoin': 'btcChartMini', 'ethereum': 'ethChartMini', 'solana': 'solChartMini' };
             const canvasId = canvasMapping[coin.id];
             const canvasEl = document.getElementById(canvasId);
             if(!canvasEl) return;
-            
             const ctx = canvasEl.getContext('2d');
             if(charts[coin.id]) charts[coin.id].destroy();
-            
-            // Couleur basée sur la performance 24h
             const isPositive = coin.price_change_percentage_24h >= 0;
             const color = isPositive ? '#10b981' : '#f43f5e';
-            
-            // Récupération des données Sparkline (7 derniers jours)
             const sparklineData = coin.sparkline_in_7d.price;
-            
             charts[coin.id] = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -512,10 +527,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    scales: { 
-                        x: { display: false }, 
-                        y: { display: false } 
-                    }
+                    scales: { x: { display: false }, y: { display: false } }
                 }
             });
         }
@@ -533,13 +545,16 @@
                 if(view === 'ia') {
                     renderGrid('ia-tools-grid', arsenalIA, 'purple');
                     loadArticles('articles', 'ia-articles-grid', 'purple');
+                    startTicker('IA Tech France', 'ia-google-feed');
                 } else if(view === 'finance') {
                     renderGrid('fi-tools-grid', arsenalFI, 'emerald');
                     loadArticles('articles_finance', 'fi-articles-grid', 'emerald');
-                    fetchMarketData(); // Déclenchement immédiat
+                    startTicker('Bourse France CAC40 Crypto', 'finance-google-feed');
+                    fetchMarketData();
                 } else if(view === 'sport') {
                     renderGrid('sp-tools-grid', arsenalSP, 'rose');
                     loadArticles('articles_sport', 'sp-articles-grid', 'rose');
+                    startTicker('Sport France Performance Actu', 'sport-google-feed');
                 }
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -558,9 +573,8 @@
             if (clockEl) clockEl.innerText = new Date().toLocaleTimeString('fr-FR'); 
         }, 1000);
         
-        // Initialisation des données au démarrage si on est déjà en vue finance (cas rare)
         fetchMarketData();
-        setInterval(fetchMarketData, 60000); // Mise à jour toutes les minutes
+        setInterval(fetchMarketData, 60000);
     </script>
 </body>
 </html>
