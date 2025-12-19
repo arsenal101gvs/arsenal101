@@ -92,23 +92,37 @@
         }
 
         #aiContent img { border-radius: 1.5rem; margin: 2rem 0; width: 100%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* Styles pour le bandeau d'erreur critique */
+        .critical-error-banner {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
+            background: #ef4444; color: white; padding: 1rem; text-align: center;
+            font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .critical-error-banner a { text-decoration: underline; font-weight: 800; }
     </style>
 </head>
 <body class="selection:bg-white/20">
 
-    <!-- Error Alert (Custom Message Box) -->
+    <!-- Bandeau d'erreur critique de configuration (masqué par défaut) -->
+    <div id="criticalErrorBanner" class="critical-error-banner hidden">
+        ⚠️ Clé API restreinte. <span id="criticalErrorAction">Action requise dans Google Cloud.</span>
+    </div>
+
+    <!-- Message d'alerte Diagnostic -->
     <div id="errorAlert" class="fixed bottom-6 right-6 z-[200] hidden">
-        <div class="bg-red-500/90 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-red-400 max-w-sm">
-            <span class="text-xl">⚠️</span>
-            <div class="flex flex-col">
-                <div class="text-xs font-bold uppercase tracking-wider opacity-70">Diagnostic Système</div>
-                <div class="text-sm font-bold leading-tight mt-1" id="errorMsg">Erreur</div>
+        <div class="bg-indigo-600/90 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl flex flex-col gap-1 border border-indigo-400 max-w-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🛠️</span>
+                <div class="text-[10px] font-bold uppercase tracking-wider opacity-70">Diagnostic Firebase</div>
+                <button onclick="document.getElementById('errorAlert').classList.add('hidden')" class="ml-auto opacity-50 hover:opacity-100">✕</button>
             </div>
-            <button onclick="document.getElementById('errorAlert').classList.add('hidden')" class="opacity-50 hover:opacity-100 ml-auto pl-4">✕</button>
+            <div class="text-sm font-bold leading-tight" id="errorMsg">Vérification...</div>
+            <div class="text-[9px] opacity-60 mt-1 italic" id="errorSub">Mode Démo actif.</div>
         </div>
     </div>
 
-    <!-- Browser Modal -->
+    <!-- Modale Navigateur -->
     <div id="browserModal" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center p-0 sm:p-4">
         <div class="glass w-full h-full sm:rounded-[2rem] flex flex-col overflow-hidden border border-white/10 shadow-2xl">
             <div class="p-4 flex items-center justify-between bg-white/5 border-b border-white/10">
@@ -124,13 +138,13 @@
         </div>
     </div>
 
-    <!-- Article Modal -->
+    <!-- Modale Article -->
     <div id="aiModal" class="fixed inset-0 bg-black/95 z-[110] hidden flex items-center justify-center p-0 sm:p-4">
         <div class="glass w-full max-w-4xl h-full sm:h-[90vh] sm:rounded-[2.5rem] overflow-hidden relative border border-white/10 flex flex-col bg-[#0b0c15]">
             <button onclick="window.toggleModal('aiModal')" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md z-20 text-white">✕</button>
             <div id="articleImageHeader" class="h-64 md:h-80 w-full overflow-hidden shrink-0 relative">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c15] to-transparent z-10"></div>
-                <img id="modalCoverImage" src="" alt="Cover" class="w-full h-full object-cover">
+                <img id="modalCoverImage" src="" alt="Couverture" class="w-full h-full object-cover">
             </div>
             <div class="flex-1 overflow-y-auto p-8 md:p-16">
                 <div id="aiContent" class="prose prose-invert prose-xl max-w-none text-slate-200"></div>
@@ -138,7 +152,7 @@
         </div>
     </div>
 
-    <!-- API Config Modal -->
+    <!-- Modale Configuration API -->
     <div id="apiModal" class="fixed inset-0 bg-black/95 z-[150] hidden flex items-center justify-center p-6 backdrop-blur-3xl">
         <div class="glass rounded-[2.5rem] p-12 max-w-md w-full border border-white/10 text-center">
             <h3 class="text-2xl font-extrabold text-white mb-3 tracking-tighter">Moteur Gemini</h3>
@@ -151,7 +165,7 @@
         </div>
     </div>
 
-    <!-- HOME VIEW -->
+    <!-- VUE ACCUEIL -->
     <section id="view-home" class="page-view active">
         <div class="split-wrapper">
             <div onclick="window.switchView('ia')" class="split-pane group">
@@ -178,7 +192,7 @@
         </div>
     </section>
 
-    <!-- Navigation Global -->
+    <!-- Navigation Globale -->
     <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl z-50 hidden">
         <div class="glass rounded-full px-8 py-3 flex justify-between items-center bg-[#020617]/80">
             <button onclick="window.switchView('home')" class="text-xs font-black opacity-60 hover:opacity-100 tracking-tighter transition-opacity">← HUB ARSENAL101</button>
@@ -187,13 +201,13 @@
                 <span id="live-time" class="hidden md:block text-[10px] font-mono opacity-40 uppercase tracking-widest">00:00:00</span>
                 <button onclick="window.toggleModal('apiModal')" class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
                     <div id="apiStatus" class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                    <span class="text-[9px] font-bold uppercase tracking-wider">IA Config</span>
+                    <span class="text-[9px] font-bold uppercase tracking-wider">Configuration IA</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- IA SECTION -->
+    <!-- SECTION IA -->
     <section id="view-ia" class="page-view pt-28">
         <div class="section-bg"></div>
         <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
@@ -227,7 +241,7 @@
         </div>
     </section>
 
-    <!-- FINANCE SECTION -->
+    <!-- SECTION FINANCE -->
     <section id="view-finance" class="page-view pt-28">
         <div class="section-bg"></div>
         <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
@@ -251,7 +265,7 @@
         </div>
     </section>
 
-    <!-- SPORT SECTION -->
+    <!-- SECTION SPORT -->
     <section id="view-sport" class="page-view pt-28">
         <div class="section-bg"></div>
         <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
@@ -278,13 +292,13 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        // --- PRODUCTION FIREBASE CONFIG ---
+        // --- CONFIGURATION FIREBASE ---
         const firebaseConfig = {
-          apiKey: "AIzaSyCYsw6YtHbloD4tSJO4-4t1G8TAditUezE",
+          apiKey: "AIzaSyD8uk_Des7jYbnczK9iiA2DtFfQBZT2YPE",
           authDomain: "arsenal101-f64ab.firebaseapp.com",
           projectId: "arsenal101-f64ab",
           storageBucket: "arsenal101-f64ab.firebasestorage.app",
@@ -293,9 +307,24 @@
           measurementId: "G-Q4C2PHQCGE"
         };
         const appId = "arsenal101-f64ab";
+        const projectIdNum = "840177660103";
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
+        
+        // Initialisation Analytics
+        let analytics = null;
+        const initAnalytics = async () => {
+            try {
+                analytics = getAnalytics(app);
+            } catch(e) {
+                const msg = e.message.toLowerCase();
+                if (msg.includes("blocked") || msg.includes("permission_denied")) {
+                    showCriticalAction("Débloquez la clé API (Google Cloud)", `https://console.cloud.google.com/apis/credentials/key/${firebaseConfig.apiKey}?project=${projectIdNum}`);
+                }
+                console.warn("Analytics non disponible.");
+            }
+        };
+
         const auth = getAuth(app);
         const db = getFirestore(app);
 
@@ -303,31 +332,38 @@
         let tickerInt = null;
         let activeSnapshots = [];
 
-        // --- AUTH INIT & DIAGNOSTIC ---
+        // --- INITIALISATION AUTHENTIFICATION ---
         const initAuth = async () => {
             try {
-                // FORCE ANONYMOUS AUTH FOR PRODUCTION KEYS
-                // Since __initial_auth_token belongs to the dev environment, it will fail with production keys.
-                // We use signInAnonymously directly.
                 await signInAnonymously(auth);
             } catch (e) {
-                console.error("Auth Failure:", e);
-                let msg = "Erreur de connexion inconnue.";
+                console.error("Erreur Auth détectée:", e.code, e.message);
+                const msg = e.message.toLowerCase();
                 
-                // Diagnostic précis pour l'utilisateur
-                if (e.code === 'auth/operation-not-allowed') {
-                    msg = "ACTION REQUISE : Activez 'Anonyme' dans Firebase > Authentication > Sign-in method.";
-                } else if (e.code === 'auth/unauthorized-domain') {
-                    msg = "DOMAINE NON AUTORISÉ : Ajoutez ce domaine dans Firebase Console > Authentication > Settings.";
-                } else if (e.code === 'auth/network-request-failed') {
-                    msg = "Erreur réseau. Vérifiez votre connexion internet.";
-                } else if (e.code === 'auth/custom-token-mismatch') {
-                    msg = "Erreur de configuration. Passage en mode Anonyme forcé.";
+                if (msg.includes("blocked") || msg.includes("permission_denied")) {
+                    showCriticalAction("Débloquez la clé API (Google Cloud)", `https://console.cloud.google.com/apis/credentials/key/${firebaseConfig.apiKey}?project=${projectIdNum}`);
+                } else {
+                    showError("Échec d'authentification. Vérifiez les réglages Google Cloud.");
                 }
                 
-                showError(msg);
+                forceDemoMode();
             }
         };
+
+        // Fonction pour afficher un bandeau d'action critique avec instruction de déblocage
+        function showCriticalAction(label, url) {
+            const banner = document.getElementById('criticalErrorBanner');
+            const action = document.getElementById('criticalErrorAction');
+            action.innerHTML = `<a href="${url}" target="_blank">${label}</a>. (Dans l'onglet 'Restrictions d'API', autorisez 'Identity Toolkit' et 'Firebase Installations').`;
+            banner.classList.remove('hidden');
+        }
+
+        function forceDemoMode() {
+            const currentView = Array.from(document.querySelectorAll('.page-view')).find(v => v.classList.contains('active'))?.id.split('-')[1];
+            if(currentView && currentView !== 'home') {
+                renderMockNews(`${currentView}-news-grid`, currentView);
+            }
+        }
 
         onAuthStateChanged(auth, (u) => { 
             user = u; 
@@ -335,31 +371,30 @@
         });
 
         initAuth();
+        initAnalytics();
 
         function showError(msg) {
             const alert = document.getElementById('errorAlert');
             if(alert) {
                 document.getElementById('errorMsg').innerText = msg;
                 alert.classList.remove('hidden');
-                // On garde l'erreur visible plus longtemps si c'est une action requise
-                const duration = msg.includes("ACTION") ? 15000 : 5000;
-                setTimeout(() => alert.classList.add('hidden'), duration);
+                setTimeout(() => alert.classList.add('hidden'), 15000);
             }
         }
 
-        // --- GEMINI ---
+        // --- GEMINI LOGIC ---
         async function callGemini(prompt, outputId) {
             const key = localStorage.getItem('arsenal101_key');
             if(!key) { window.toggleModal('apiModal'); return; }
             const out = document.getElementById(outputId);
             out.classList.remove('hidden');
-            out.innerHTML = "<span class='animate-pulse'>Analyse en cours...</span>";
+            out.innerHTML = "<span class='animate-pulse italic'>Traitement par l'Arsenal IA...</span>";
             try {
                 const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = await model.generateContent(prompt);
                 out.innerHTML = marked.parse(result.response.text());
-            } catch(e) { out.innerHTML = "<span class='text-red-400'>Erreur API.</span>"; }
+            } catch(e) { out.innerHTML = "<span class='text-red-400 font-bold'>Échec Gemini. Vérifiez votre clé.</span>"; }
         }
 
         window.generatePrompt = () => callGemini(`Expert Prompt Engineer. Optimise ce prompt pour Midjourney et GPT : "${document.getElementById('promptInput').value}"`, 'promptOutput');
@@ -377,13 +412,12 @@
             if(status) status.className = `w-2 h-2 rounded-full ${hasKey ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]'}`;
         }
 
-        // --- NAVIGATION & DATA ---
+        // --- NAVIGATION ET DATA ---
         window.switchView = (view) => {
             document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.add('active');
             const nav = document.getElementById('main-nav');
             
-            // Clean listeners
             activeSnapshots.forEach(unsub => unsub());
             activeSnapshots = [];
 
@@ -394,8 +428,6 @@
                 const queries = { ia: 'IA Tech France', finance: 'Bourse France CAC40', sport: 'Actualité Sport France' };
                 const cols = { ia: 'articles', finance: 'articles_finance', sport: 'articles_sport' };
                 startTicker(queries[view], `${view}-google-feed`);
-                
-                // Fallback rendering
                 loadFirestoreNews(cols[view], `${view}-news-grid`, view);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -416,42 +448,42 @@
                     idx = (idx + 1) % Math.max(1, data.items.length - 4);
                 };
                 render();
-                tickerInt = setInterval(render, 3000);
+                tickerInt = setInterval(render, 4000);
             } catch(e) { container.innerHTML = "Flux indisponible"; }
         }
 
         function loadFirestoreNews(col, gridId, type) {
             if(!user) {
-                 // Fallback immédiat si pas d'auth
                  renderMockNews(gridId, type);
                  return; 
             }
 
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', col);
-            
-            const unsub = onSnapshot(query(colRef, limit(3)), 
-                (snap) => {
-                    const grid = document.getElementById(gridId);
-                    if(snap.empty) {
-                        renderMockNews(gridId, type); // Empty DB -> Mock
-                    } else {
-                        grid.innerHTML = '';
-                        snap.forEach(doc => {
-                            const d = doc.data();
-                            const card = document.createElement('div');
-                            card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5";
-                            card.onclick = () => window.showArticle(d, d.image_url || `https://source.unsplash.com/featured/?${type}`);
-                            card.innerHTML = `<img src="${d.image_url || 'https://via.placeholder.com/80'}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div></div>`;
-                            grid.appendChild(card);
-                        });
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', col);
+                const unsub = onSnapshot(query(colRef, limit(3)), 
+                    (snap) => {
+                        const grid = document.getElementById(gridId);
+                        if(snap.empty) {
+                            renderMockNews(gridId, type);
+                        } else {
+                            grid.innerHTML = '';
+                            snap.forEach(doc => {
+                                const d = doc.data();
+                                const card = document.createElement('div');
+                                card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5";
+                                card.onclick = () => window.showArticle(d, d.image_url || `https://source.unsplash.com/featured/?${type}`);
+                                card.innerHTML = `<img src="${d.image_url || 'https://via.placeholder.com/80'}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div></div>`;
+                                grid.appendChild(card);
+                            });
+                        }
+                    }, 
+                    (err) => {
+                        console.error("Firestore Error:", err);
+                        renderMockNews(gridId, type);
                     }
-                }, 
-                (err) => {
-                    console.error("Firestore Permission Error:", err);
-                    renderMockNews(gridId, type); // Permission Error -> Mock
-                }
-            );
-            activeSnapshots.push(unsub);
+                );
+                activeSnapshots.push(unsub);
+            } catch(e) { renderMockNews(gridId, type); }
         }
 
         function renderMockNews(gridId, type) {
@@ -459,20 +491,20 @@
              if(!grid) return;
              grid.innerHTML = '';
              const mocks = [
-                 { title: "Mode Démo : Activez 'Anonyme' dans Firebase pour voir le live", image_url: `https://source.unsplash.com/featured/?${type},technology` },
-                 { title: "Exemple de contenu : Tendances et Analyses", image_url: `https://source.unsplash.com/featured/?${type},abstract` },
-                 { title: "Exemple de contenu : Performance et Data", image_url: `https://source.unsplash.com/featured/?${type},future` }
+                 { title: "Dashboard Arsenal101 : Votre clé API Google Cloud bloque les services (Voir bandeau rouge).", image_url: `https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=300` },
+                 { title: "Mode Diagnostic : Exemple de contenu stratégique Arsenal.", image_url: `https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=300` },
+                 { title: "Prêt : Le déploiement sur arsenal101.fr attend votre déblocage de clé.", image_url: `https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=300` }
              ];
              mocks.forEach(d => {
                  const card = document.createElement('div');
-                 card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5 opacity-60";
-                 card.onclick = () => window.showArticle({ title: d.title, content: "Ceci est un article de démonstration. Configurez l'authentification Firebase pour voir les vraies données." }, d.image_url);
-                 card.innerHTML = `<img src="${d.image_url}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div><div class="text-[9px] text-yellow-400">Mode Démo</div></div>`;
+                 card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5 opacity-60 hover:opacity-100 transition-opacity";
+                 card.onclick = () => window.showArticle({ title: d.title, content: "L'erreur 403 PERMISSION_DENIED indique que votre clé API est restreinte. Allez dans la console Google Cloud > Identifiants > Votre clé, et dans 'Restrictions d'API', vérifiez que vous n'avez pas bloqué Identity Toolkit et Firebase Installations." }, d.image_url);
+                 card.innerHTML = `<img src="${d.image_url}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div><div class="text-[9px] text-indigo-400 font-bold tracking-widest uppercase">Diagnostic Mode</div></div>`;
                  grid.appendChild(card);
              });
         }
 
-        // TOOLS
+        // OUTILS
         const arsenalIA = ["Midjourney", "ChatGPT 4o", "Claude 3.5", "Runway", "Pika", "Suno", "ElevenLabs", "Zapier", "Make", "Cursor"];
         const arsenalFI = ["TradingView", "Binance", "MetaMask", "CoinMarketCap", "DefiLlama", "Degiro", "Revolut", "Boursorama", "Waltio", "Finary"];
         const arsenalSP = ["Strava", "Whoop", "Garmin Connect", "Oura", "MyFitnessPal", "Zwift", "Flashscore", "NBA League Pass", "DAZN", "Sorare"];
@@ -486,9 +518,12 @@
         window.showArticle = (d, img) => {
             window.toggleModal('aiModal');
             document.getElementById('modalCoverImage').src = img;
-            document.getElementById('aiContent').innerHTML = marked.parse(`# ${d.title}\n\n${d.content || d.articleContent}`);
+            document.getElementById('aiContent').innerHTML = marked.parse(`# ${d.title}\n\n${d.content || d.articleContent || 'Chargement...'}`);
         };
-        setInterval(() => { document.getElementById('live-time').innerText = new Date().toLocaleTimeString(); }, 1000);
+        setInterval(() => { 
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleTimeString('fr-FR'); 
+        }, 1000);
     </script>
 </body>
 </html>
