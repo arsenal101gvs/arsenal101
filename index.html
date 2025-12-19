@@ -93,7 +93,6 @@
 
         #aiContent img { border-radius: 1.5rem; margin: 2rem 0; width: 100%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
         
-        /* Styles pour le bandeau d'erreur critique */
         .critical-error-banner {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
             background: #ef4444; color: white; padding: 1rem; text-align: center;
@@ -104,9 +103,9 @@
 </head>
 <body class="selection:bg-white/20">
 
-    <!-- Bandeau d'erreur critique de configuration (masqué par défaut) -->
+    <!-- Bandeau d'erreur critique de configuration -->
     <div id="criticalErrorBanner" class="critical-error-banner hidden">
-        ⚠️ Clé API restreinte. <span id="criticalErrorAction">Action requise dans Google Cloud.</span>
+        ⚠️ <span id="criticalErrorText">Problème de configuration détecté.</span> <span id="criticalErrorAction"></span>
     </div>
 
     <!-- Message d'alerte Diagnostic -->
@@ -296,9 +295,9 @@
         import { getFirestore, collection, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        // --- CONFIGURATION FIREBASE ---
+        // --- CONFIGURATION FIREBASE MISE À JOUR ---
         const firebaseConfig = {
-          apiKey: "AIzaSyD8uk_Des7jYbnczK9iiA2DtFfQBZT2YPE",
+          apiKey: "AIzaSyCYsw6YtHbloD4tSJO4-4t1G8TAditUezE",
           authDomain: "arsenal101-f64ab.firebaseapp.com",
           projectId: "arsenal101-f64ab",
           storageBucket: "arsenal101-f64ab.firebasestorage.app",
@@ -311,17 +310,15 @@
 
         const app = initializeApp(firebaseConfig);
         
-        // Initialisation Analytics
         let analytics = null;
         const initAnalytics = async () => {
             try {
                 analytics = getAnalytics(app);
             } catch(e) {
-                const msg = e.message.toLowerCase();
-                if (msg.includes("blocked") || msg.includes("permission_denied")) {
-                    showCriticalAction("Débloquez la clé API (Google Cloud)", `https://console.cloud.google.com/apis/credentials/key/${firebaseConfig.apiKey}?project=${projectIdNum}`);
+                if (e.message.toLowerCase().includes("installations")) {
+                    showCriticalAction("API Installations non activée", `https://console.developers.google.com/apis/api/firebaseinstallations.googleapis.com/overview?project=${projectIdNum}`);
                 }
-                console.warn("Analytics non disponible.");
+                console.warn("Analytics indisponible.");
             }
         };
 
@@ -337,24 +334,30 @@
             try {
                 await signInAnonymously(auth);
             } catch (e) {
-                console.error("Erreur Auth détectée:", e.code, e.message);
+                console.error("Erreur Firebase détectée:", e.code, e.message);
                 const msg = e.message.toLowerCase();
                 
-                if (msg.includes("blocked") || msg.includes("permission_denied")) {
-                    showCriticalAction("Débloquez la clé API (Google Cloud)", `https://console.cloud.google.com/apis/credentials/key/${firebaseConfig.apiKey}?project=${projectIdNum}`);
-                } else {
-                    showError("Échec d'authentification. Vérifiez les réglages Google Cloud.");
+                if (msg.includes("api key not found")) {
+                    showCriticalAction("Clé API invalide", `https://console.firebase.google.com/project/${firebaseConfig.projectId}/settings/general`);
+                } 
+                else if (msg.includes("identitytoolkit")) {
+                    showCriticalAction("API Identity Toolkit non activée", `https://console.developers.google.com/apis/api/identitytoolkit.googleapis.com/overview?project=${projectIdNum}`);
+                } 
+                else if (msg.includes("blocked") || msg.includes("permission_denied")) {
+                    showCriticalAction("Clé API restreinte (Google Cloud)", `https://console.cloud.google.com/apis/credentials/key/${firebaseConfig.apiKey}?project=${projectIdNum}`);
+                } 
+                else {
+                    showError("Échec de connexion Firebase.");
                 }
                 
                 forceDemoMode();
             }
         };
 
-        // Fonction pour afficher un bandeau d'action critique avec instruction de déblocage
         function showCriticalAction(label, url) {
             const banner = document.getElementById('criticalErrorBanner');
             const action = document.getElementById('criticalErrorAction');
-            action.innerHTML = `<a href="${url}" target="_blank">${label}</a>. (Dans l'onglet 'Restrictions d'API', autorisez 'Identity Toolkit' et 'Firebase Installations').`;
+            action.innerHTML = `<a href="${url}" target="_blank">Cliquez ici pour corriger : ${label}</a>`;
             banner.classList.remove('hidden');
         }
 
@@ -388,7 +391,7 @@
             if(!key) { window.toggleModal('apiModal'); return; }
             const out = document.getElementById(outputId);
             out.classList.remove('hidden');
-            out.innerHTML = "<span class='animate-pulse italic'>Traitement par l'Arsenal IA...</span>";
+            out.innerHTML = "<span class='animate-pulse italic'>Traitement IA...</span>";
             try {
                 const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -491,14 +494,14 @@
              if(!grid) return;
              grid.innerHTML = '';
              const mocks = [
-                 { title: "Dashboard Arsenal101 : Votre clé API Google Cloud bloque les services (Voir bandeau rouge).", image_url: `https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=300` },
-                 { title: "Mode Diagnostic : Exemple de contenu stratégique Arsenal.", image_url: `https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=300` },
-                 { title: "Prêt : Le déploiement sur arsenal101.fr attend votre déblocage de clé.", image_url: `https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=300` }
+                 { title: "Mode Diagnostic : Vérifiez le bandeau rouge en haut pour activer les APIs.", image_url: `https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=300` },
+                 { title: "Dashboard Prêt : En attente de synchronisation avec arsenal101.fr.", image_url: `https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=300` },
+                 { title: "Expertise Arsenal : Votre plateforme est prête pour le déploiement.", image_url: `https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=300` }
              ];
              mocks.forEach(d => {
                  const card = document.createElement('div');
                  card.className = "glass p-4 rounded-2xl cursor-pointer flex gap-4 items-center bento-card border border-white/5 opacity-60 hover:opacity-100 transition-opacity";
-                 card.onclick = () => window.showArticle({ title: d.title, content: "L'erreur 403 PERMISSION_DENIED indique que votre clé API est restreinte. Allez dans la console Google Cloud > Identifiants > Votre clé, et dans 'Restrictions d'API', vérifiez que vous n'avez pas bloqué Identity Toolkit et Firebase Installations." }, d.image_url);
+                 card.onclick = () => window.showArticle({ title: d.title, content: "Le système est en mode démo. Une fois les APIs activées dans votre console Google Cloud (Identity Toolkit et Firebase Installations), les vrais articles s'afficheront ici." }, d.image_url);
                  card.innerHTML = `<img src="${d.image_url}" class="w-12 h-12 rounded-lg object-cover"><div><div class="text-xs font-bold text-white line-clamp-2">${d.title}</div><div class="text-[9px] text-indigo-400 font-bold tracking-widest uppercase">Diagnostic Mode</div></div>`;
                  grid.appendChild(card);
              });
