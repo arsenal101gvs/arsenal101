@@ -221,22 +221,28 @@
                             <p class="text-xs text-slate-400">Indicateurs de marchés & tendances mondiales</p>
                         </div>
                         <div class="flex flex-col items-end gap-2">
-                            <span class="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold">BTC/EUR <span id="ticker-btc">--</span></span>
+                            <span class="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold">BTC/EUR <span id="ticker-btc" class="text-emerald-400">chargement...</span></span>
                         </div>
                     </div>
                     
                     <div class="grid md:grid-cols-3 gap-4 h-[180px]">
-                        <div class="glass rounded-2xl p-4">
+                        <div class="glass rounded-2xl p-4 flex flex-col justify-between">
                             <span class="text-[10px] font-bold opacity-40 uppercase">Bitcoin</span>
-                            <canvas id="btcChartMini"></canvas>
+                            <div class="h-24 w-full">
+                                <canvas id="btcChartMini"></canvas>
+                            </div>
                         </div>
-                        <div class="glass rounded-2xl p-4">
+                        <div class="glass rounded-2xl p-4 flex flex-col justify-between">
                             <span class="text-[10px] font-bold opacity-40 uppercase">Ethereum</span>
-                            <canvas id="ethChartMini"></canvas>
+                            <div class="h-24 w-full">
+                                <canvas id="ethChartMini"></canvas>
+                            </div>
                         </div>
-                        <div class="glass rounded-2xl p-4">
+                        <div class="glass rounded-2xl p-4 flex flex-col justify-between">
                             <span class="text-[10px] font-bold opacity-40 uppercase">Solana</span>
-                            <canvas id="solChartMini"></canvas>
+                            <div class="h-24 w-full">
+                                <canvas id="solChartMini"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -401,14 +407,13 @@
         function loadArticles(col, gridId, color) {
             const container = document.getElementById(gridId);
             if(!container) return;
-            container.innerHTML = '<div class="col-span-full animate-pulse text-xs opacity-50">Chargement des dernières analyses...</div>';
+            container.innerHTML = '<div class="col-span-full animate-pulse text-xs opacity-50 text-center">Chargement des dernières analyses...</div>';
             
-            // Chemin Firestore : artifacts/appId/public/data/collection
             const colRef = collection(db, 'artifacts', currentAppId, 'public', 'data', col);
             
             onSnapshot(query(colRef, limit(4)), (snap) => {
                 if(snap.empty) {
-                    container.innerHTML = '<div class="col-span-full text-xs opacity-30 italic">Aucune analyse disponible pour le moment.</div>';
+                    container.innerHTML = '<div class="col-span-full text-xs opacity-30 italic text-center">Aucune analyse disponible pour le moment.</div>';
                     return;
                 }
                 container.innerHTML = '';
@@ -430,37 +435,87 @@
                     container.appendChild(card);
                 });
             }, (err) => {
-                container.innerHTML = '<div class="col-span-full text-xs text-red-400">Erreur de synchronisation.</div>';
+                container.innerHTML = '<div class="col-span-full text-xs text-red-400 text-center">Erreur de synchronisation.</div>';
             });
         }
 
-        // --- MARKET LOGIC ---
+        // --- MARKET LOGIC (CORRECTED) ---
         async function fetchMarketData() {
             try {
-                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=bitcoin,ethereum,solana&sparkline=true');
+                // Utilisation de l'endpoint public CoinGecko avec sparkline pour les graphes
+                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=bitcoin,ethereum,solana&sparkline=true&price_change_percentage=24h');
                 const data = await res.json();
-                marketData = data.reduce((acc, coin) => ({ ...acc, [coin.id]: coin }), {});
-                document.getElementById('ticker-btc').innerText = `${marketData.bitcoin.current_price.toLocaleString()} €`;
-                data.forEach(coin => renderMiniChart(coin));
-            } catch(e) {}
+                
+                if (data && data.length > 0) {
+                    marketData = data.reduce((acc, coin) => ({ ...acc, [coin.id]: coin }), {});
+                    
+                    // Mise à jour du ticker principal (Bitcoin)
+                    const btc = marketData.bitcoin;
+                    if (btc) {
+                        const btcPriceEl = document.getElementById('ticker-btc');
+                        if (btcPriceEl) {
+                            btcPriceEl.innerText = btc.current_price.toLocaleString('fr-FR') + ' €';
+                        }
+                    }
+                    
+                    // Rendu de chaque mini-graphique
+                    data.forEach(coin => renderMiniChart(coin));
+                }
+            } catch(e) {
+                console.error("Erreur de récupération des prix:", e);
+                const btcPriceEl = document.getElementById('ticker-btc');
+                if (btcPriceEl) btcPriceEl.innerText = "indisponible";
+            }
         }
 
         function renderMiniChart(coin) {
-            const canvasId = `${coin.id === 'bitcoin' ? 'btc' : coin.id === 'ethereum' ? 'eth' : 'sol'}ChartMini`;
-            const ctx = document.getElementById(canvasId);
-            if(!ctx) return;
+            const canvasMapping = {
+                'bitcoin': 'btcChartMini',
+                'ethereum': 'ethChartMini',
+                'solana': 'solChartMini'
+            };
+            
+            const canvasId = canvasMapping[coin.id];
+            const canvasEl = document.getElementById(canvasId);
+            if(!canvasEl) return;
+            
+            const ctx = canvasEl.getContext('2d');
             if(charts[coin.id]) charts[coin.id].destroy();
-            const color = coin.price_change_percentage_24h >= 0 ? '#10b981' : '#f43f5e';
+            
+            // Couleur basée sur la performance 24h
+            const isPositive = coin.price_change_percentage_24h >= 0;
+            const color = isPositive ? '#10b981' : '#f43f5e';
+            
+            // Récupération des données Sparkline (7 derniers jours)
+            const sparklineData = coin.sparkline_in_7d.price;
+            
             charts[coin.id] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: coin.sparkline_in_7d.price.map((_, i) => i),
-                    datasets: [{ data: coin.sparkline_in_7d.price, borderColor: color, borderWidth: 2, pointRadius: 0, fill: false, tension: 0.4 }]
+                    labels: sparklineData.map((_, i) => i),
+                    datasets: [{
+                        data: sparklineData,
+                        borderColor: color,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 80);
+                            gradient.addColorStop(0, isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)');
+                            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                            return gradient;
+                        },
+                        tension: 0.4 
+                    }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    scales: { x: { display: false }, y: { display: false } }
+                    scales: { 
+                        x: { display: false }, 
+                        y: { display: false } 
+                    }
                 }
             });
         }
@@ -475,14 +530,13 @@
                 nav.classList.remove('hidden');
                 document.documentElement.style.setProperty('--accent', getComputedStyle(document.body).getPropertyValue(`--${view === 'ia' ? 'ia' : view === 'finance' ? 'fi' : 'sp'}`));
                 
-                // Initialisation spécifique par vue
                 if(view === 'ia') {
                     renderGrid('ia-tools-grid', arsenalIA, 'purple');
                     loadArticles('articles', 'ia-articles-grid', 'purple');
                 } else if(view === 'finance') {
                     renderGrid('fi-tools-grid', arsenalFI, 'emerald');
                     loadArticles('articles_finance', 'fi-articles-grid', 'emerald');
-                    fetchMarketData();
+                    fetchMarketData(); // Déclenchement immédiat
                 } else if(view === 'sport') {
                     renderGrid('sp-tools-grid', arsenalSP, 'rose');
                     loadArticles('articles_sport', 'sp-articles-grid', 'rose');
@@ -499,8 +553,14 @@
         };
 
         signInAnonymously(auth);
-        setInterval(() => { document.getElementById('live-time').innerText = new Date().toLocaleTimeString('fr-FR'); }, 1000);
-        setInterval(fetchMarketData, 60000);
+        setInterval(() => { 
+            const clockEl = document.getElementById('live-time');
+            if (clockEl) clockEl.innerText = new Date().toLocaleTimeString('fr-FR'); 
+        }, 1000);
+        
+        // Initialisation des données au démarrage si on est déjà en vue finance (cas rare)
+        fetchMarketData();
+        setInterval(fetchMarketData, 60000); // Mise à jour toutes les minutes
     </script>
 </body>
 </html>
