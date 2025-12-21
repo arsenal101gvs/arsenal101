@@ -185,3 +185,192 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsenal101 | L'Arsenal Digital Pro (Public Edition)</title>
+    <meta name="description" content="Le hub ultime regroupant plus de 300 outils IA, Finance et Sport.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Style global et éléments */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: rgb(2, 6, 23); color: #f1f5f9; overflow-x: hidden; }
+        .glass { background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .page-view { display: none; min-height: 100vh; width: 100%; position: relative; padding-bottom: 5rem; }
+        .page-view.active { display: block; animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .split-wrapper { display: flex; height: 100vh; width: 100%; overflow: hidden; background: #000; }
+        .split-pane { width: 33.33%; height: 100%; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        @media (min-width: 1024px) {
+            .split-pane:hover { width: 45%; }
+            .split-wrapper:hover .split-pane:not(:hover) { width: 27.5%; filter: brightness(0.4) blur(4px); }
+        }
+        .article-bento { background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(2, 6, 23, 0.6) 100%); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .tag-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace; cursor: pointer; }
+    </style>
+</head>
+<body class="selection:bg-white/20">
+    <section id="view-home" class="page-view active">
+        <div class="split-wrapper">
+            <div onclick="switchView('ia')" class="split-pane group">
+                <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200');"></div>
+                <div class="pane-content text-center relative z-10 p-6">
+                    <div class="text-6xl mb-4">🤖</div>
+                    <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-purple-500">IA</span></h1>
+                    <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Intelligence Artificielle</p>
+                </div>
+            </div>
+            <div onclick="switchView('finance')" class="split-pane group">
+                <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200');"></div>
+                <div class="pane-content text-center relative z-10 p-6">
+                    <div class="text-6xl mb-4">💰</div>
+                    <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-emerald-500">FI</span></h1>
+                    <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Finance & Trading</p>
+                </div>
+            </div>
+            <div onclick="switchView('sport')" class="split-pane group border-r-0">
+                <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200');"></div>
+                <div class="pane-content text-center relative z-10 p-6">
+                    <div class="text-6xl mb-4">🏃</div>
+                    <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-rose-600">SP</span></h1>
+                    <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Sport & Performance</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl z-50 hidden">
+        <div class="glass rounded-full px-8 py-3 flex justify-between items-center bg-[#020617]/80">
+            <button onclick="switchView('home')" class="text-xs font-black opacity-60 hover:opacity-100 transition-opacity uppercase tracking-widest">← HUB ARSENAL101</button>
+            <div class="text-xl font-black tracking-tighter uppercase">Arsenal 101</div>
+        </div>
+    </nav>
+
+    <!-- Flux RSS & Outils pour IA, Finance et Sport -->
+    <section id="view-ia" class="page-view pt-28">
+        <div class="container mx-auto px-4 max-w-7xl space-y-8">
+            <h2 class="text-3xl font-bold text-white">Outils IA</h2>
+            <div id="ia-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <h2 class="text-3xl font-bold text-white mt-8">Actualités IA</h2>
+            <div id="ia-google-feed" class="space-y-2 text-sm"></div>
+        </div>
+    </section>
+
+    <section id="view-finance" class="page-view pt-28">
+        <div class="container mx-auto px-4 max-w-7xl space-y-8">
+            <h2 class="text-3xl font-bold text-white">Outils Finance</h2>
+            <div id="fi-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <h2 class="text-3xl font-bold text-white mt-8">Actualités Finance</h2>
+            <div id="finance-google-feed" class="space-y-2 text-sm"></div>
+        </div>
+    </section>
+
+    <section id="view-sport" class="page-view pt-28">
+        <div class="container mx-auto px-4 max-w-7xl space-y-8">
+            <h2 class="text-3xl font-bold text-white">Outils Sport</h2>
+            <div id="sp-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <h2 class="text-3xl font-bold text-white mt-8">Actualités Sport</h2>
+            <div id="sport-google-feed" class="space-y-2 text-sm"></div>
+        </div>
+    </section>
+
+    <footer class="text-center py-10 opacity-40 hover:opacity-100 transition-opacity">
+        <div class="flex flex-col items-center gap-4">
+            <p class="text-[10px] text-slate-500">Données non visibles ? Lancez l'actualisation.</p>
+            <button onclick="refreshArticles()" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-purple-900/40 transition-colors">⚡️ Actualiser les Articles</button>
+        </div>
+    </footer>
+
+    <script>
+        // Fonction pour changer de vue
+        function switchView(view) {
+            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+            
+            const nav = document.getElementById('main-nav');
+            if (view === 'home') {
+                nav.classList.add('hidden');
+            } else {
+                nav.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Exemple d'outils pour chaque catégorie
+        const toolsData = {
+            ia: [
+                { name: "ChatGPT 4", hook: "Le cerveau numérique", intro: "Modèle de langage avancé pour la rédaction et le code." },
+                { name: "Midjourney", hook: "L'art génératif", intro: "Générateur d'images IA de pointe accessible via Discord." }
+            ],
+            fi: [
+                { name: "CoinGecko", hook: "Data Crypto", intro: "Agrégateur de données crypto indépendant et complet." },
+                { name: "Binance", hook: "Exchange #1", intro: "La plus grande bourse de crypto-monnaies au monde." }
+            ],
+            sp: [
+                { name: "Strava", hook: "Réseau social", intro: "Suivi GPS et réseau social pour athlètes." },
+                { name: "Garmin Connect", hook: "Données GPS", intro: "Plateforme d'analyse pour les montres Garmin." }
+            ]
+        };
+
+        // Fonction pour afficher les outils dans le DOM
+        function renderTools(gridId, tools) {
+            const grid = document.getElementById(gridId);
+            if(!grid) return;
+            grid.innerHTML = tools.map(t => `
+                <div class="tool-card rounded-2xl p-6 cursor-pointer group h-full flex flex-col" onclick="window.open('https://google.com/search?q=${t.name}', '_blank')">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-[9px] font-bold bg-white/10 px-2 py-1 rounded text-white group-hover:bg-white/20 transition-colors">${t.hook}</span>
+                    </div>
+                    <h4 class="font-bold text-white text-lg mb-1">${t.name}</h4>
+                    <p class="text-xs font-bold opacity-80 italic mb-2 text-[var(--accent)]">"${t.hook}"</p>
+                    <p class="text-[11px] text-slate-400 leading-relaxed mt-auto">${t.intro}</p>
+                </div>
+            `).join('');
+        }
+
+        // Fonction pour charger les actualités via Google RSS Feed
+        async function loadRSSFeed(query, containerId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.innerHTML = '<div class="animate-pulse">Chargement...</div>';
+            
+            try {
+                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=fr&gl=FR&ceid=FR:fr`;
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+                const data = await res.json();
+                
+                if (data.status === 'ok' && data.items.length > 0) {
+                    container.innerHTML = data.items.map(i => `
+                        <div class="p-3 border-b border-white/5 hover:bg-white/5 cursor-pointer group transition-colors" onclick="window.open('${i.link}', '_blank')">
+                            <p class="text-[11px] font-bold text-white line-clamp-2 group-hover:text-[var(--accent)]">${i.title}</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-[9px] opacity-40">${new Date(i.pubDate).toLocaleTimeString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    throw new Error("Flux vide");
+                }
+            } catch (e) {
+                console.warn("Erreur RSS:", e);
+                container.innerHTML = "Erreur de chargement des flux.";
+            }
+        }
+
+        // Charger les outils et les actualités pour chaque catégorie au démarrage
+        renderTools('ia-tools-grid', toolsData.ia);
+        renderTools('fi-tools-grid', toolsData.fi);
+        renderTools('sp-tools-grid', toolsData.sp);
+        loadRSSFeed('Intelligence Artificielle', 'ia-google-feed');
+        loadRSSFeed('Finance', 'finance-google-feed');
+        loadRSSFeed('Sport', 'sport-google-feed');
+    </script>
+</body>
+</html>
+
+
