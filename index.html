@@ -3,200 +3,1675 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO & BRANDING -->
     <title>Arsenal101 | L'Arsenal Digital Pro (Public Edition)</title>
-    <meta name="description" content="Le hub ultime regroupant plus de 300 outils IA, Finance, Sport, et Drones.">
+    <meta name="description" content="Le hub ultime regroupant plus de 300 outils IA, Finance et Sport.">
+    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: rgb(2, 6, 23); color: #f1f5f9; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root { 
+            --ia: 168, 85, 247; --fi: 16, 185, 129; --sp: 244, 63, 94; --bg: 2, 6, 23; --accent: 168, 85, 247;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: rgb(var(--bg)); 
+            color: #f1f5f9; 
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism */
         .glass { background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        
         .page-view { display: none; min-height: 100vh; width: 100%; position: relative; padding-bottom: 5rem; }
         .page-view.active { display: block; animation: fadeIn 0.6s ease-out; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .article-bento { background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(2, 6, 23, 0.6) 100%); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .tag-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace; cursor: pointer; }
+
+        .split-wrapper { display: flex; height: 100vh; width: 100%; overflow: hidden; background: #000; }
+        .split-pane { 
+            position: relative; width: 33.33%; height: 100%; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        @media (min-width: 1024px) {
+            .split-pane:hover { width: 45%; }
+            .split-wrapper:hover .split-pane:not(:hover) { width: 27.5%; filter: brightness(0.4) blur(4px); }
+        }
+
+        .article-bento {
+            background: linear-gradient(135deg, rgba(var(--accent), 0.1) 0%, rgba(2, 6, 23, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .article-bento:hover { border-color: rgba(var(--accent), 0.5); transform: translateY(-5px); }
+
+        .tag-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .tag-pill:hover { background: rgba(var(--accent), 0.2); border-color: rgba(var(--accent), 0.4); }
+
+        .drone-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .drone-card:hover { background: rgba(var(--ia), 0.1); border-color: rgba(var(--ia), 0.4); }
+        .militaire-badge { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .civil-badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+
+        .tool-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .tool-card:hover { 
+            background: rgba(255, 255, 255, 0.08); 
+            transform: translateY(-5px); 
+            border-color: rgba(var(--accent), 0.5);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Crypto Table Styles */
+        .crypto-row { transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .crypto-row:hover { background: rgba(255,255,255,0.05); }
+        .crypto-cell { padding: 12px; font-size: 0.85rem; }
+        
+        /* Nouveaux styles pour pages distantes */
+        .remote-page { 
+            min-height: 100vh; 
+            background: rgb(var(--bg)); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 1000; 
+            display: none; 
+            overflow-y: auto;
+            padding-top: 80px;
+        }
+        .remote-page.active { display: block; animation: slideIn 0.5s ease-out; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .breadcrumb { 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 12px; 
+            padding: 10px 20px; 
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .breadcrumb a { 
+            color: rgba(255,255,255,0.6); 
+            text-decoration: none; 
+            transition: color 0.3s;
+            font-size: 12px;
+        }
+        
+        .breadcrumb a:hover { color: rgba(var(--accent), 0.8); }
+        
+        .breadcrumb .separator { margin: 0 10px; opacity: 0.3; }
+        
+        /* Styles pour liens de navigation */
+        .nav-link {
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link:hover {
+            background: rgba(var(--accent), 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            background: rgba(var(--accent), 0.2);
+            border-color: rgba(var(--accent), 0.5);
+        }
+        
+        /* Grid améliorée pour outils */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        /* Sidebar de navigation améliorée */
+        .sidebar-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-nav-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .sidebar-nav-item:hover {
+            background: rgba(var(--accent), 0.3);
+            transform: scale(1.1);
+        }
+        
+        .sidebar-nav-item.active {
+            background: rgba(var(--accent), 0.5);
+            border-color: rgba(var(--accent), 0.8);
+        }
+        
+        /* Indicateur de page */
+        .page-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            z-index: 1001;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            background: linear-gradient(135deg, rgba(var(--accent), 0.1) 0%, rgba(2, 6, 23, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            border-color: rgba(var(--accent), 0.3);
+            transform: translateY(-5px);
+        }
+        
+        /* Comparaison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .comparison-table th {
+            background: rgba(255,255,255,0.03);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .comparison-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .comparison-table tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        
+        /* Timeline */
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(var(--accent), 0.8);
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 17px;
+            width: 2px;
+            height: calc(100% + 13px);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        /* Filtres */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(var(--accent), 0.2);
+            color: white;
+        }
+        
+        .filter-btn.active {
+            background: rgba(var(--accent), 0.3);
+            border-color: rgba(var(--accent), 0.5);
+            color: white;
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 20px;
+            width: 100%;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .search-bar:focus {
+            outline: none;
+            border-color: rgba(var(--accent), 0.5);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(var(--accent), 0.8), rgba(var(--accent), 0.4));
+            border-radius: 3px;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-primary {
+            background: rgba(var(--accent), 0.2);
+            color: rgba(var(--accent), 1);
+            border: 1px solid rgba(var(--accent), 0.3);
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Accordion */
+        .accordion-item {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.03);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .accordion-content {
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            display: none;
+        }
+        
+        .accordion-item.active .accordion-content {
+            display: block;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            height: 300px;
+        }
     </style>
 </head>
 <body class="selection:bg-white/20">
 
-    <!-- PAGE ACCUEIL -->
+    <!-- Navigation Globale -->
+    <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl z-50 hidden">
+        <div class="glass rounded-full px-8 py-3 flex justify-between items-center bg-[#020617]/80">
+            <button onclick="window.switchView('home')" class="text-xs font-black opacity-60 hover:opacity-100 transition-opacity uppercase tracking-widest">← HUB ARSENAL101</button>
+            <div class="text-xl font-black tracking-tighter uppercase">Arsenal 101</div>
+            <div class="flex items-center gap-4">
+                <span id="live-time" class="hidden md:block text-[10px] font-mono opacity-40 uppercase tracking-widest">00:00:00</span>
+                <button onclick="window.openRemotePage('search')" class="text-xs opacity-60 hover:opacity-100 transition-opacity">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Barre latérale de navigation -->
+    <div class="sidebar-nav hidden" id="sidebar-nav">
+        <a href="#home" class="sidebar-nav-item" data-view="home" title="Accueil">
+            <i class="fas fa-home"></i>
+        </a>
+        <a href="#ia" class="sidebar-nav-item" data-view="ia" title="Intelligence Artificielle">
+            <i class="fas fa-robot"></i>
+        </a>
+        <a href="#finance" class="sidebar-nav-item" data-view="finance" title="Finance">
+            <i class="fas fa-chart-line"></i>
+        </a>
+        <a href="#sport" class="sidebar-nav-item" data-view="sport" title="Sport">
+            <i class="fas fa-running"></i>
+        </a>
+        <a href="javascript:window.openRemotePage('drone-hub')" class="sidebar-nav-item" title="Drone Intelligence">
+            <i class="fas fa-drone"></i>
+        </a>
+        <a href="javascript:window.openRemotePage('market-intel')" class="sidebar-nav-item" title="Market Intelligence">
+            <i class="fas fa-globe"></i>
+        </a>
+    </div>
+
+    <!-- Indicateur de page -->
+    <div class="page-indicator hidden" id="page-indicator">
+        <span id="current-page-name">Accueil</span>
+    </div>
+
+    <!-- VUE ACCUEIL -->
     <section id="view-home" class="page-view active">
         <div class="split-wrapper">
-            <!-- Section IA -->
-            <div onclick="switchView('ia')" class="split-pane group">
+            <div onclick="window.switchView('ia')" class="split-pane group">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
                     <div class="text-6xl mb-4">🤖</div>
                     <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-purple-500">IA</span></h1>
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Intelligence Artificielle</p>
+                    <div class="mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col gap-2">
+                        <button onclick="window.openRemotePage('ia-tools')" class="nav-link">
+                            <i class="fas fa-tools"></i>
+                            Tous les outils IA
+                        </button>
+                        <button onclick="window.openRemotePage('drone-hub')" class="nav-link">
+                            <i class="fas fa-drone"></i>
+                            Hub Drone Intelligence
+                        </button>
+                        <button onclick="window.openRemotePage('ia-learning')" class="nav-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            Apprentissage IA
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Section Drones -->
-            <div onclick="switchView('drones')" class="split-pane group">
-                <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1594060869194-d15bcd01c7d9');"></div>
-                <div class="pane-content text-center relative z-10 p-6">
-                    <div class="text-6xl mb-4">🛸</div>
-                    <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-blue-500">Drones</span></h1>
-                    <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Drones Civils & Militaires</p>
-                </div>
-            </div>
-
-            <!-- Section Finance -->
-            <div onclick="switchView('finance')" class="split-pane group border-r-0">
+            <div onclick="window.switchView('finance')" class="split-pane group">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
                     <div class="text-6xl mb-4">💰</div>
                     <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-emerald-500">FI</span></h1>
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Finance & Trading</p>
+                    <div class="mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col gap-2">
+                        <button onclick="window.openRemotePage('finance-tools')" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            Tous les outils Finance
+                        </button>
+                        <button onclick="window.openRemotePage('crypto-hub')" class="nav-link">
+                            <i class="fas fa-bitcoin"></i>
+                            Crypto Intelligence
+                        </button>
+                        <button onclick="window.openRemotePage('market-intel')" class="nav-link">
+                            <i class="fas fa-chart-network"></i>
+                            Market Intelligence
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Section Sports -->
-            <div onclick="switchView('sports')" class="split-pane group">
+            <div onclick="window.switchView('sport')" class="split-pane group border-r-0">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
                     <div class="text-6xl mb-4">🏃</div>
                     <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-rose-600">SP</span></h1>
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Sport & Performance</p>
+                    <div class="mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col gap-2">
+                        <button onclick="window.openRemotePage('sport-tools')" class="nav-link">
+                            <i class="fas fa-dumbbell"></i>
+                            Tous les outils Sport
+                        </button>
+                        <button onclick="window.openRemotePage('nutrition-hub')" class="nav-link">
+                            <i class="fas fa-apple-alt"></i>
+                            Nutrition Intelligence
+                        </button>
+                        <button onclick="window.openRemotePage('performance-hub')" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Performance Hub
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Globales Accueil -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl z-20">
+            <div class="glass rounded-2xl p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-2xl font-black text-purple-400">300+</div>
+                    <div class="text-[10px] uppercase opacity-60">Outils</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-emerald-400">24/7</div>
+                    <div class="text-[10px] uppercase opacity-60">Live Data</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-rose-400">50+</div>
+                    <div class="text-[10px] uppercase opacity-60">Sources</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-blue-400">100%</div>
+                    <div class="text-[10px] uppercase opacity-60">Public Edition</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- IA PAGE -->
-    <section id="view-ia" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl space-y-8">
-            <h2 class="text-3xl font-bold text-white">Applications IA (50+)</h2>
-            <div id="ia-apps-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <!-- Placeholder pour applications IA -->
+    <!-- PAGES DISTANTES -->
+
+    <!-- Page Drone Hub Complète -->
+    <div id="remote-page-drone-hub" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <a href="javascript:window.switchView('ia')">Intelligence Artificielle</a>
+                <span class="separator">/</span>
+                <span>Drone Intelligence Hub</span>
+            </div>
+            
+            <!-- Hero Section -->
+            <div class="glass rounded-[2.5rem] p-10 mb-10 border-l-4 border-purple-500">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div>
+                        <h1 class="text-5xl font-black tracking-tighter mb-4">
+                            <span class="text-purple-400">Drone Intelligence</span> Hub
+                        </h1>
+                        <p class="text-lg opacity-70 max-w-3xl">Base de données complète, analyses techniques et veille stratégique sur les technologies drones civiles et militaires</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="badge badge-primary">50+ Drones</span>
+                        <span class="badge badge-success">Live Updates</span>
+                        <span class="badge badge-warning">Tech Specs</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="stats-card">
+                    <div class="text-3xl font-black text-purple-400 mb-2">120+</div>
+                    <div class="text-sm opacity-70">Modèles de drones référencés</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-3xl font-black text-emerald-400 mb-2">45</div>
+                    <div class="text-sm opacity-70">Pays utilisateurs actifs</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-3xl font-black text-rose-400 mb-2">$18.5B</div>
+                    <div class="text-sm opacity-70">Marché global 2024</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-3xl font-black text-blue-400 mb-2">32%</div>
+                    <div class="text-sm opacity-70">Croissance annuelle</div>
+                </div>
+            </div>
+            
+            <!-- Filtres et Recherche -->
+            <div class="glass rounded-2xl p-6 mb-10">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <input type="text" id="drone-search" placeholder="Rechercher un drone..." class="search-bar flex-1">
+                    <div class="flex gap-2">
+                        <button class="filter-btn active" data-filter="all">Tous</button>
+                        <button class="filter-btn" data-filter="military">Militaire</button>
+                        <button class="filter-btn" data-filter="civil">Civil</button>
+                        <button class="filter-btn" data-filter="commercial">Commercial</button>
+                    </div>
+                </div>
+                
+                <!-- Tableau Comparatif -->
+                <div class="overflow-x-auto">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Modèle</th>
+                                <th>Type</th>
+                                <th>Portée</th>
+                                <th>Autonomie</th>
+                                <th>Altitude</th>
+                                <th>Prix</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="drone-comparison-table">
+                            <!-- Rempli dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Détails Techniques -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                <div class="lg:col-span-2">
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-6 text-purple-400">Analyses Techniques Détailées</h3>
+                        <div id="drone-tech-specs"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="glass rounded-2xl p-6 mb-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Top 5 Drones Militaires</h3>
+                        <div id="top-military-drones"></div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Top 5 Drones Civils</h3>
+                        <div id="top-civil-drones"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Évolution Technologique -->
+            <div class="glass rounded-2xl p-6 mb-10">
+                <h3 class="text-xl font-black mb-6 text-purple-400">Timeline Évolution Drones</h3>
+                <div class="timeline-container" id="drone-timeline"></div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Finance PAGE -->
-    <section id="view-finance" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl space-y-8">
-            <h2 class="text-3xl font-bold text-white">Applications Finance (50+)</h2>
-            <div id="finance-apps-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <!-- Placeholder pour applications Finance -->
+    <!-- Page Crypto Intelligence -->
+    <div id="remote-page-crypto-hub" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <a href="javascript:window.switchView('finance')">Finance</a>
+                <span class="separator">/</span>
+                <span>Crypto Intelligence</span>
+            </div>
+            
+            <div class="glass rounded-[2.5rem] p-10 mb-10 border-l-4 border-emerald-500">
+                <h1 class="text-5xl font-black tracking-tighter mb-4">
+                    <span class="text-emerald-400">Crypto Intelligence</span> Hub
+                </h1>
+                <p class="text-lg opacity-70">Analyses en temps réel, données on-chain, et intelligence de marché crypto</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="chart-container mb-6">
+                        <canvas id="crypto-chart"></canvas>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-emerald-400">On-Chain Analytics</h3>
+                        <div id="on-chain-metrics"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="glass rounded-2xl p-6 mb-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Fear & Greed Index</h3>
+                        <div class="text-center">
+                            <div id="fear-greed-value" class="text-6xl font-black mb-2">00</div>
+                            <div class="progress-bar mb-4">
+                                <div id="fear-greed-progress" class="progress-fill" style="width: 50%"></div>
+                            </div>
+                            <div id="fear-greed-label" class="text-sm">Neutre</div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Top Movers (24h)</h3>
+                        <div id="top-movers"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Sports PAGE -->
-    <section id="view-sports" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl space-y-8">
-            <h2 class="text-3xl font-bold text-white">Applications Sports (50+)</h2>
-            <div id="sports-apps-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <!-- Placeholder pour applications Sports -->
+    <!-- Page Market Intelligence -->
+    <div id="remote-page-market-intel" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <span>Market Intelligence</span>
+            </div>
+            
+            <div class="glass rounded-[2.5rem] p-10 mb-10">
+                <h1 class="text-5xl font-black tracking-tighter mb-4">
+                    <span class="text-blue-400">Market Intelligence</span> Global
+                </h1>
+                <p class="text-lg opacity-70">Données financières, indices boursiers, commodities et intelligence économique</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <div class="glass rounded-2xl p-6 mb-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Indices Mondiaux</h3>
+                        <div id="world-indices"></div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Commodities</h3>
+                        <div id="commodities"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="glass rounded-2xl p-6 mb-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Devises Majeures</h3>
+                        <div id="forex"></div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Événements Économiques</h3>
+                        <div id="economic-calendar"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Drones PAGE -->
-    <section id="view-drones" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl space-y-8">
-            <h2 class="text-3xl font-bold text-white">Applications Drones (50+)</h2>
-            <div id="drones-apps-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <!-- Placeholder pour applications Drones -->
+    <!-- Page Nutrition Intelligence -->
+    <div id="remote-page-nutrition-hub" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <a href="javascript:window.switchView('sport')">Sport</a>
+                <span class="separator">/</span>
+                <span>Nutrition Intelligence</span>
+            </div>
+            
+            <div class="glass rounded-[2.5rem] p-10 mb-10 border-l-4 border-rose-500">
+                <h1 class="text-5xl font-black tracking-tighter mb-4">
+                    <span class="text-rose-400">Nutrition Intelligence</span> Hub
+                </h1>
+                <p class="text-lg opacity-70">Science nutritionnelle, plans alimentaires, et optimisation des performances</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="glass rounded-2xl p-6 mb-6">
+                        <h3 class="text-xl font-black mb-4 text-rose-400">Calculateur Nutritionnel</h3>
+                        <div id="nutrition-calculator"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Macronutriments Guide</h3>
+                        <div id="macronutrients-guide"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Digital Creation and YouTube PAGE -->
-    <section id="view-creation" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl space-y-8">
-            <h2 class="text-3xl font-bold text-white">Applications Création Digitale & YouTube</h2>
-            <div id="creation-apps-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <!-- Placeholder pour applications Création -->
+    <!-- Page Performance Hub -->
+    <div id="remote-page-performance-hub" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <a href="javascript:window.switchView('sport')">Sport</a>
+                <span class="separator">/</span>
+                <span>Performance Hub</span>
+            </div>
+            
+            <div class="glass rounded-[2.5rem] p-10 mb-10">
+                <h1 class="text-5xl font-black tracking-tighter mb-4">
+                    <span class="text-purple-400">Performance</span> Optimization Hub
+                </h1>
+                <p class="text-lg opacity-70">Science du sport, biomécanique, et optimisation des performances athlétiques</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <div class="glass rounded-2xl p-6 mb-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Mesures Biomécaniques</h3>
+                        <div id="biomechanics"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-black mb-4 text-white">Récupération & Régénération</h3>
+                        <div id="recovery-tools"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
+    <!-- Page Learning Hub IA -->
+    <div id="remote-page-ia-learning" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <a href="javascript:window.switchView('ia')">IA</a>
+                <span class="separator">/</span>
+                <span>Learning Hub</span>
+            </div>
+            
+            <div class="glass rounded-[2.5rem] p-10 mb-10">
+                <h1 class="text-5xl font-black tracking-tighter mb-4">
+                    <span class="text-purple-400">IA Learning</span> Hub
+                </h1>
+                <p class="text-lg opacity-70">Ressources éducatives, tutoriels et formations en intelligence artificielle</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="article-bento rounded-2xl p-6">
+                    <div class="text-4xl mb-4 text-purple-400">📚</div>
+                    <h3 class="text-xl font-black mb-2">Cours Fondamentaux</h3>
+                    <p class="text-sm opacity-70 mb-4">Apprenez les bases de l'IA et du machine learning</p>
+                    <button class="tag-pill">Commencer</button>
+                </div>
+                
+                <div class="article-bento rounded-2xl p-6">
+                    <div class="text-4xl mb-4 text-emerald-400">💻</div>
+                    <h3 class="text-xl font-black mb-2">Tutoriels Pratiques</h3>
+                    <p class="text-sm opacity-70 mb-4">Mise en pratique avec des projets concrets</p>
+                    <button class="tag-pill">Explorer</button>
+                </div>
+                
+                <div class="article-bento rounded-2xl p-6">
+                    <div class="text-4xl mb-4 text-rose-400">🔬</div>
+                    <h3 class="text-xl font-black mb-2">Recherche Avancée</h3>
+                    <p class="text-sm opacity-70 mb-4">Papiers de recherche et avancées récentes</p>
+                    <button class="tag-pill">Étudier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Search Global -->
+    <div id="remote-page-search" class="remote-page">
+        <div class="back-button" onclick="window.closeRemotePage()">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 max-w-3xl">
+            <div class="breadcrumb">
+                <a href="javascript:window.switchView('home')">Accueil</a>
+                <span class="separator">/</span>
+                <span>Recherche Globale</span>
+            </div>
+            
+            <div class="glass rounded-[2.5rem] p-10 mb-10">
+                <h1 class="text-5xl font-black tracking-tighter mb-4 text-center">
+                    Recherche <span class="text-purple-400">Arsenal101</span>
+                </h1>
+                
+                <div class="relative mb-8">
+                    <input type="text" id="global-search-input" placeholder="Rechercher outils, articles, données..." 
+                           class="search-bar text-lg py-4 px-6">
+                    <button onclick="performGlobalSearch()" class="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <span class="tag-pill">IA Tools</span>
+                    <span class="tag-pill">Crypto</span>
+                    <span class="tag-pill">Drones</span>
+                    <span class="tag-pill">Fitness</span>
+                    <span class="tag-pill">Trading</span>
+                    <span class="tag-pill">Nutrition</span>
+                </div>
+            </div>
+            
+            <div id="search-results" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Modale Article -->
+    <div id="aiModal" class="fixed inset-0 bg-black/95 z-[110] hidden flex items-center justify-center p-0 sm:p-4">
+        <div class="glass w-full max-w-4xl h-full sm:h-[90vh] sm:rounded-[2.5rem] overflow-hidden relative border border-white/10 flex flex-col bg-[#0b0c15]">
+            <button onclick="window.toggleModal('aiModal')" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md z-20 text-white">✕</button>
+            <div id="articleImageHeader" class="h-64 md:h-80 w-full overflow-hidden shrink-0 relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c15] to-transparent z-10"></div>
+                <img id="modalCoverImage" src="" alt="Couverture" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 md:p-16">
+                <div id="aiContent" class="prose prose-invert prose-xl max-w-none text-slate-200"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer / Admin Hidden Trigger -->
     <footer class="text-center py-10 opacity-40 hover:opacity-100 transition-opacity">
         <div class="flex flex-col items-center gap-4">
             <p class="text-[10px] text-slate-500">Données non visibles ? Lancez l'actualisation.</p>
-            <button onclick="refreshApplications()" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-purple-900/40 transition-colors">⚡️ Actualiser les Applications</button>
+            <button onclick="window.seedAllCategories()" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-purple-900/40 transition-colors">⚡️ Actualiser les Articles (Live 24h)</button>
+            <div class="flex gap-4">
+                <button onclick="window.openRemotePage('drone-hub')" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-purple-900/40 transition-colors">🚀 Drone Hub</button>
+                <button onclick="window.openRemotePage('crypto-hub')" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-emerald-900/40 transition-colors">💰 Crypto Hub</button>
+                <button onclick="window.openRemotePage('market-intel')" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-blue-900/40 transition-colors">📈 Market Intel</button>
+            </div>
         </div>
     </footer>
 
-    <script>
-        // Fonction de changement de vue
-        function switchView(view) {
-            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
-            document.getElementById(`view-${view}`).classList.add('active');
+    <script type="module">
+        // ... (Tout le code Firebase précédent reste inchangé jusqu'à la section toolsData)...
+
+        // --- BASE DE DONNÉES DRONES ÉTENDUE ---
+        const droneDBExtended = [
+            // Drones Militaires
+            { 
+                name: "MQ-9 Reaper X", 
+                type: "Militaire", 
+                category: "UCAV",
+                range: "1850 km", 
+                endurance: "27h", 
+                altitude: "15,000m", 
+                speed: "482 km/h",
+                payload: "1700 kg",
+                year: 2024, 
+                price: "32M€",
+                country: "USA",
+                status: "Active",
+                description: "Drone de combat tactique longue endurance",
+                specs: {
+                    engine: "Turboprop 900ch",
+                    sensors: "SAR/MTI, EO/IR, SIGINT",
+                    weapons: "Hellfire, GBU-12, JDAM",
+                    communication: "SATCOM, Line-of-Sight"
+                }
+            },
+            { 
+                name: "Global Hawk RQ-4", 
+                type: "Militaire", 
+                category: "HALE",
+                range: "22,800 km", 
+                endurance: "34h", 
+                altitude: "18,000m", 
+                speed: "630 km/h",
+                payload: "1360 kg",
+                year: 2021, 
+                price: "130M€",
+                country: "USA",
+                status: "Active",
+                description: "Drone de reconnaissance stratégique haute altitude"
+            },
+            { 
+                name: "Bayraktar TB2", 
+                type: "Militaire", 
+                category: "MALE",
+                range: "150 km", 
+                endurance: "27h", 
+                altitude: "8,200m", 
+                speed: "222 km/h",
+                payload: "150 kg",
+                year: 2020, 
+                price: "5M€",
+                country: "Turquie",
+                status: "Active",
+                description: "Drone de combat moyenne altitude tactique"
+            },
+            { 
+                name: "Wing Loong II", 
+                type: "Militaire", 
+                category: "UCAV",
+                range: "1500 km", 
+                endurance: "20h", 
+                altitude: "9,000m", 
+                speed: "370 km/h",
+                payload: "480 kg",
+                year: 2022, 
+                price: "2M€",
+                country: "Chine",
+                status: "Active",
+                description: "Drone de combat multi-rôle"
+            },
+            { 
+                name: "Heron TP", 
+                type: "Militaire", 
+                category: "MALE",
+                range: "7400 km", 
+                endurance: "36h", 
+                altitude: "13,700m", 
+                speed: "370 km/h",
+                payload: "2700 kg",
+                year: 2022, 
+                price: "14M€",
+                country: "Israël",
+                status: "Active",
+                description: "Drone de surveillance stratégique"
+            },
             
-            const nav = document.getElementById('main-nav');
-            if (view === 'home') {
-                nav.classList.add('hidden');
-            } else {
-                nav.classList.remove('hidden');
+            // Drones Civils/Commerciaux
+            { 
+                name: "DJI Agras T50", 
+                type: "Civil", 
+                category: "Agriculture",
+                range: "3 km", 
+                endurance: "21 min", 
+                altitude: "3000m", 
+                speed: "10 m/s",
+                payload: "50 kg",
+                year: 2023, 
+                price: "18.5k€",
+                country: "Chine",
+                status: "Active",
+                description: "Drone agricole pour pulvérisation"
+            },
+            { 
+                name: "DJI Mavic 3 Enterprise", 
+                type: "Civil", 
+                category: "Inspection",
+                range: "15 km", 
+                endurance: "45 min", 
+                altitude: "6000m", 
+                speed: "21 m/s",
+                payload: "N/A",
+                year: 2022, 
+                price: "4.5k€",
+                country: "Chine",
+                status: "Active",
+                description: "Drone professionnel pour inspections"
+            },
+            { 
+                name: "Autel Titan", 
+                type: "Civil", 
+                category: "Professional",
+                range: "15 km", 
+                endurance: "42 min", 
+                altitude: "7000m", 
+                speed: "20 m/s",
+                payload: "2.7 kg",
+                year: 2024, 
+                price: "12.4k€",
+                country: "USA",
+                status: "Active",
+                description: "Drone professionnel haut de gamme"
+            },
+            { 
+                name: "Parrot Anafi USA", 
+                type: "Civil", 
+                category: "Government",
+                range: "5 km", 
+                endurance: "32 min", 
+                altitude: "5500m", 
+                speed: "15 m/s",
+                payload: "N/A",
+                year: 2021, 
+                price: "7k€",
+                country: "France",
+                status: "Active",
+                description: "Drone sécurisé pour applications gouvernementales"
+            },
+            { 
+                name: "Skydio X10", 
+                type: "Civil", 
+                category: "Autonomous",
+                range: "10 km", 
+                endurance: "40 min", 
+                altitude: "4500m", 
+                speed: "18 m/s",
+                payload: "N/A",
+                year: 2024, 
+                price: "3.2k€",
+                country: "USA",
+                status: "Active",
+                description: "Drone autonome avec IA intégrée"
+            },
+            
+            // Drones Spéciaux
+            { 
+                name: "Black Hornet 4", 
+                type: "Militaire", 
+                category: "Nano",
+                range: "2 km", 
+                endurance: "25 min", 
+                altitude: "500m", 
+                speed: "21 km/h",
+                payload: "N/A",
+                year: 2025, 
+                price: "195k€",
+                country: "Norvège",
+                status: "Active",
+                description: "Drone nano de reconnaissance personnel"
+            },
+            { 
+                name: "Zipline Delivery", 
+                type: "Civil", 
+                category: "Logistics",
+                range: "160 km", 
+                endurance: "N/A", 
+                altitude: "120m", 
+                speed: "100 km/h",
+                payload: "1.8 kg",
+                year: 2023, 
+                price: "N/A",
+                country: "USA",
+                status: "Active",
+                description: "Drone de livraison médicale"
+            },
+            { 
+                name: "Wingcopter 198", 
+                type: "Civil", 
+                category: "Delivery",
+                range: "100 km", 
+                endurance: "75 min", 
+                altitude: "5000m", 
+                speed: "240 km/h",
+                payload: "5 kg",
+                year: 2022, 
+                price: "N/A",
+                country: "Allemagne",
+                status: "Active",
+                description: "Drone de livraison verticale"
             }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        ];
+
+        // --- FONCTIONS POUR PAGES DRONE ---
+        function renderDroneComparisonTable(drones) {
+            const table = document.getElementById('drone-comparison-table');
+            if (!table) return;
+            
+            table.innerHTML = drones.map(drone => `
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="font-bold text-white">${drone.name}</td>
+                    <td>
+                        <span class="${drone.type === 'Militaire' ? 'militaire-badge' : 'civil-badge'} text-xs">
+                            ${drone.type}
+                        </span>
+                    </td>
+                    <td>${drone.range}</td>
+                    <td>${drone.endurance}</td>
+                    <td>${drone.altitude}</td>
+                    <td class="font-bold">${drone.price}</td>
+                    <td>
+                        <button onclick="showDroneDetails('${drone.name}')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded">
+                            Détails
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // Exemple d'applications (remplacez par les vraies données)
-        const apps = {
-            ia: [
-                { name: "Canva Pro", description: "Outil de création graphique avec IA", link: "https://www.canva.com" },
-                { name: "ChatGPT 4", description: "Assistant IA pour rédaction et analyse", link: "https://www.openai.com/chatgpt" },
-                // Ajoutez jusqu'à 50 applications ici...
-            ],
-            finance: [
-                { name: "TradingView", description: "Graphiques et analyse de marché", link: "https://www.tradingview.com" },
-                { name: "Binance", description: "Exchange de crypto-monnaies", link: "https://www.binance.com" },
-                // Ajoutez jusqu'à 50 applications ici...
-            ],
-            sports: [
-                { name: "Strava", description: "Suivi GPS pour les athlètes", link: "https://www.strava.com" },
-                { name: "Nike Run Club", description: "Suivi et coaching pour running", link: "https://www.nike.com/runclub" },
-                // Ajoutez jusqu'à 50 applications ici...
-            ],
-            drones: [
-                { name: "DJI Drone", description: "Drones pour la photographie", link: "https://www.dji.com" },
-                { name: "Parrot Anafi", description: "Drone 4K pour prise de vue", link: "https://www.parrot.com" },
-                // Ajoutez jusqu'à 50 applications ici...
-            ],
-            creation: [
-                { name: "Adobe Photoshop", description: "Outil de création et retouche photo", link: "https://www.adobe.com/products/photoshop.html" },
-                { name: "Final Cut Pro", description: "Logiciel de montage vidéo", link: "https://www.apple.com/final-cut-pro" },
-                // Ajoutez des applications pour création digitale et YouTube...
-            ]
-        };
+        function renderTopDrones() {
+            const militaryDrones = droneDBExtended.filter(d => d.type === 'Militaire').slice(0, 5);
+            const civilDrones = droneDBExtended.filter(d => d.type === 'Civil').slice(0, 5);
+            
+            const militaryContainer = document.getElementById('top-military-drones');
+            const civilContainer = document.getElementById('top-civil-drones');
+            
+            if (militaryContainer) {
+                militaryContainer.innerHTML = militaryDrones.map(drone => `
+                    <div class="flex items-center justify-between p-3 border-b border-white/10 last:border-0">
+                        <div>
+                            <div class="font-bold text-sm">${drone.name}</div>
+                            <div class="text-xs opacity-60">${drone.country} • ${drone.year}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-sm">${drone.price}</div>
+                            <div class="text-xs opacity-60">${drone.category}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            if (civilContainer) {
+                civilContainer.innerHTML = civilDrones.map(drone => `
+                    <div class="flex items-center justify-between p-3 border-b border-white/10 last:border-0">
+                        <div>
+                            <div class="font-bold text-sm">${drone.name}</div>
+                            <div class="text-xs opacity-60">${drone.country} • ${drone.year}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-sm">${drone.price}</div>
+                            <div class="text-xs opacity-60">${drone.category}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
 
-        // Rendu des applications dans les pages respectives
-        function renderApplications(category) {
-            const grid = document.getElementById(`${category}-apps-grid`);
-            grid.innerHTML = apps[category].map(app => `
-                <div class="article-bento p-6 rounded-3xl flex flex-col justify-between h-full group">
-                    <h4 class="text-2xl font-bold text-white mb-2">${app.name}</h4>
-                    <p class="text-slate-400 mb-4">${app.description}</p>
-                    <a href="${app.link}" target="_blank" class="text-purple-500 hover:underline">Voir plus</a>
+        function renderDroneTimeline() {
+            const timeline = document.getElementById('drone-timeline');
+            if (!timeline) return;
+            
+            const timelineEvents = [
+                { year: "2001", event: "Premier vol du Predator", description: "Début de l'ère des drones militaires modernes" },
+                { year: "2006", event: "DJI fondé", description: "Début de la démocratisation des drones grand public" },
+                { year: "2013", event: "Amazon Prime Air", description: "Premier projet de livraison par drone" },
+                { year: "2016", event: "Règlement drone UE", description: "Harmonisation des règles en Europe" },
+                { year: "2020", event: "Drones médicaux COVID", description: "Utilisation massive pour la livraison médicale" },
+                { year: "2023", event: "IA embarquée", description: "Intégration de l'IA dans les drones commerciaux" },
+                { year: "2025", event: "Drones autonomes", description: "Navigation sans GPS et décision autonome" }
+            ];
+            
+            timeline.innerHTML = timelineEvents.map(event => `
+                <div class="timeline-item">
+                    <div class="font-bold text-lg text-white">${event.year}</div>
+                    <div class="font-bold text-purple-400 mb-1">${event.event}</div>
+                    <div class="text-sm opacity-70">${event.description}</div>
                 </div>
             `).join('');
         }
 
-        // Initialiser les applications sur les pages
-        window.onload = () => {
-            renderApplications('ia');
-            renderApplications('finance');
-            renderApplications('sports');
-            renderApplications('drones');
-            renderApplications('creation');
+        function showDroneDetails(droneName) {
+            const drone = droneDBExtended.find(d => d.name === droneName);
+            if (!drone) return;
+            
+            const specsContainer = document.getElementById('drone-tech-specs');
+            if (specsContainer) {
+                specsContainer.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-bold mb-4">${drone.name}</h4>
+                            <p class="text-sm opacity-70 mb-6">${drone.description}</p>
+                            
+                            <div class="space-y-3">
+                                <div class="flex justify-between border-b border-white/10 pb-2">
+                                    <span class="opacity-70">Type</span>
+                                    <span class="font-bold">${drone.type} • ${drone.category}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/10 pb-2">
+                                    <span class="opacity-70">Pays</span>
+                                    <span class="font-bold">${drone.country}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/10 pb-2">
+                                    <span class="opacity-70">Année</span>
+                                    <span class="font-bold">${drone.year}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/10 pb-2">
+                                    <span class="opacity-70">Statut</span>
+                                    <span class="font-bold">${drone.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-bold mb-4 text-white">Caractéristiques Techniques</h5>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="text-xs opacity-50 mb-1">Portée</div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-white/10 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: ${parseInt(drone.range) > 1000 ? '100%' : '60%'}"></div>
+                                        </div>
+                                        <span class="text-sm font-bold">${drone.range}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="text-xs opacity-50 mb-1">Autonomie</div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-white/10 rounded-full h-2">
+                                            <div class="bg-emerald-500 h-2 rounded-full" style="width: ${parseInt(drone.endurance) > 20 ? '100%' : '50%'}"></div>
+                                        </div>
+                                        <span class="text-sm font-bold">${drone.endurance}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="text-xs opacity-50 mb-1">Altitude</div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-white/10 rounded-full h-2">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: ${parseInt(drone.altitude) > 10000 ? '100%' : '40%'}"></div>
+                                        </div>
+                                        <span class="text-sm font-bold">${drone.altitude}</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="text-xs opacity-50 mb-1">Vitesse</div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-white/10 rounded-full h-2">
+                                            <div class="bg-rose-500 h-2 rounded-full" style="width: ${parseInt(drone.speed) > 500 ? '100%' : '30%'}"></div>
+                                        </div>
+                                        <span class="text-sm font-bold">${drone.speed}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-white/10">
+                                <div class="text-lg font-bold text-center">${drone.price}</div>
+                                <div class="text-xs opacity-50 text-center">Prix estimé</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- FONCTIONS PAGES CRYPTO ---
+        function renderCryptoChart() {
+            const ctx = document.getElementById('crypto-chart').getContext('2d');
+            if (!ctx) return;
+            
+            // Données fictives pour démo
+            const data = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Bitcoin (BTC)',
+                    data: [45000, 52000, 48000, 62000, 58000, 65000],
+                    borderColor: 'rgb(245, 158, 11)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Ethereum (ETH)',
+                    data: [3200, 3800, 3500, 4200, 3900, 4500],
+                    borderColor: 'rgb(139, 92, 246)',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            };
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateFearGreedIndex() {
+            // Valeur aléatoire pour démo
+            const value = Math.floor(Math.random() * 100);
+            const label = value < 25 ? 'Extreme Fear' : 
+                         value < 45 ? 'Fear' :
+                         value < 55 ? 'Neutral' :
+                         value < 75 ? 'Greed' : 'Extreme Greed';
+            
+            document.getElementById('fear-greed-value').textContent = value;
+            document.getElementById('fear-greed-progress').style.width = `${value}%`;
+            document.getElementById('fear-greed-label').textContent = label;
+            
+            // Changer la couleur selon la valeur
+            const progress = document.getElementById('fear-greed-progress');
+            if (value < 25) {
+                progress.style.background = 'linear-gradient(90deg, #ef4444, #f87171)';
+            } else if (value < 45) {
+                progress.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+            } else if (value < 55) {
+                progress.style.background = 'linear-gradient(90deg, #6b7280, #9ca3af)';
+            } else if (value < 75) {
+                progress.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+            } else {
+                progress.style.background = 'linear-gradient(90deg, #059669, #10b981)';
+            }
+        }
+
+        // --- FONCTIONS PAGES MARKET ---
+        function renderWorldIndices() {
+            const indices = [
+                { name: 'S&P 500', value: '5,234.18', change: '+0.87%', country: 'USA' },
+                { name: 'NASDAQ', value: '16,428.82', change: '+1.05%', country: 'USA' },
+                { name: 'Dow Jones', value: '39,475.90', change: '+0.34%', country: 'USA' },
+                { name: 'FTSE 100', value: '8,215.55', change: '-0.12%', country: 'UK' },
+                { name: 'DAX', value: '18,459.05', change: '+0.56%', country: 'Germany' },
+                { name: 'CAC 40', value: '8,095.61', change: '+0.42%', country: 'France' },
+                { name: 'Nikkei 225', value: '38,835.10', change: '-0.85%', country: 'Japan' },
+                { name: 'Hang Seng', value: '18,475.82', change: '+1.23%', country: 'Hong Kong' }
+            ];
+            
+            const container = document.getElementById('world-indices');
+            if (!container) return;
+            
+            container.innerHTML = indices.map(index => `
+                <div class="flex items-center justify-between p-3 border-b border-white/10 last:border-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                            <span class="text-xs">${index.country.substring(0, 2)}</span>
+                        </div>
+                        <div>
+                            <div class="font-bold">${index.name}</div>
+                            <div class="text-xs opacity-60">${index.country}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold">${index.value}</div>
+                        <div class="text-xs ${index.change.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${index.change}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- FONCTIONS POUR RECHERCHE GLOBALE ---
+        function performGlobalSearch() {
+            const query = document.getElementById('global-search-input').value.toLowerCase();
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (!query.trim()) {
+                resultsContainer.innerHTML = '<div class="text-center py-8 opacity-50">Entrez un terme de recherche...</div>';
+                return;
+            }
+            
+            // Recherche dans les outils
+            const allTools = [...toolsData.ia, ...toolsData.fi, ...toolsData.sp];
+            const toolResults = allTools.filter(tool => 
+                tool.name.toLowerCase().includes(query) || 
+                tool.tag.toLowerCase().includes(query) ||
+                tool.intro.toLowerCase().includes(query)
+            ).slice(0, 10);
+            
+            // Recherche dans les drones
+            const droneResults = droneDBExtended.filter(drone =>
+                drone.name.toLowerCase().includes(query) ||
+                drone.type.toLowerCase().includes(query) ||
+                drone.category.toLowerCase().includes(query) ||
+                drone.description.toLowerCase().includes(query)
+            ).slice(0, 10);
+            
+            resultsContainer.innerHTML = `
+                <div class="glass rounded-2xl p-6 mb-4">
+                    <h3 class="text-lg font-bold mb-4">Outils (${toolResults.length})</h3>
+                    ${toolResults.length > 0 ? toolResults.map(tool => `
+                        <div class="flex items-center justify-between p-3 border-b border-white/10 last:border-0">
+                            <div>
+                                <div class="font-bold">${tool.name}</div>
+                                <div class="text-xs opacity-60">${tool.tag}</div>
+                            </div>
+                            <button onclick="window.open('https://google.com/search?q=${tool.name}', '_blank')" 
+                                    class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded">
+                                Voir
+                            </button>
+                        </div>
+                    `).join('') : '<div class="text-center py-4 opacity-50">Aucun outil trouvé</div>'}
+                </div>
+                
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-lg font-bold mb-4">Drones (${droneResults.length})</h3>
+                    ${droneResults.length > 0 ? droneResults.map(drone => `
+                        <div class="flex items-center justify-between p-3 border-b border-white/10 last:border-0">
+                            <div>
+                                <div class="font-bold">${drone.name}</div>
+                                <div class="text-xs opacity-60">${drone.type} • ${drone.category}</div>
+                            </div>
+                            <button onclick="showDroneDetails('${drone.name}')" 
+                                    class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded">
+                                Détails
+                            </button>
+                        </div>
+                    `).join('') : '<div class="text-center py-4 opacity-50">Aucun drone trouvé</div>'}
+                </div>
+            `;
+        }
+
+        // --- FONCTIONS POUR PAGES DISTANTES ---
+        window.openRemotePage = (pageId) => {
+            // Masquer toutes les pages
+            document.querySelectorAll('.page-view, .remote-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Afficher la page distante
+            const remotePage = document.getElementById(`remote-page-${pageId}`);
+            if (remotePage) {
+                remotePage.classList.add('active');
+                document.getElementById('sidebar-nav').classList.remove('hidden');
+                document.getElementById('page-indicator').classList.remove('hidden');
+                
+                // Mettre à jour l'indicateur
+                const pageNames = {
+                    'drone-hub': 'Drone Intelligence',
+                    'crypto-hub': 'Crypto Intelligence',
+                    'market-intel': 'Market Intelligence',
+                    'nutrition-hub': 'Nutrition Hub',
+                    'performance-hub': 'Performance Hub',
+                    'ia-learning': 'IA Learning',
+                    'search': 'Recherche'
+                };
+                
+                document.getElementById('current-page-name').textContent = pageNames[pageId] || pageId;
+                
+                // Initialiser le contenu spécifique
+                switch(pageId) {
+                    case 'drone-hub':
+                        renderDroneComparisonTable(droneDBExtended);
+                        renderTopDrones();
+                        renderDroneTimeline();
+                        break;
+                    case 'crypto-hub':
+                        renderCryptoChart();
+                        updateFearGreedIndex();
+                        break;
+                    case 'market-intel':
+                        renderWorldIndices();
+                        break;
+                }
+            }
         };
 
-        // Rafraîchissement des applications
-        function refreshApplications() {
-            renderApplications('ia');
-            renderApplications('finance');
-            renderApplications('sports');
-            renderApplications('drones');
-            renderApplications('creation');
-        }
-    </script>
+        // ... (le reste des fonctions existantes comme closeRemotePage, initData, etc.)...
 
+        // Initialisation améliorée
+        async function initData() {
+            try {
+                // ... (code d'initialisation existant)...
+                
+                // Initialiser les pages distantes si besoin
+                if (window.location.hash.includes('remote-')) {
+                    const pageId = window.location.hash.replace('#remote-', '');
+                    window.openRemotePage(pageId);
+                }
+                
+            } catch (e) {
+                console.error("Erreur d'initialisation :", e);
+            }
+        }
+
+        // Gestionnaire d'événements pour filtres drones
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                const filter = e.target.dataset.filter;
+                
+                // Mettre à jour les boutons actifs
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                // Filtrer les drones
+                let filteredDrones = droneDBExtended;
+                if (filter !== 'all') {
+                    filteredDrones = droneDBExtended.filter(drone => 
+                        drone.type.toLowerCase().includes(filter) || 
+                        drone.category.toLowerCase().includes(filter)
+                    );
+                }
+                
+                renderDroneComparisonTable(filteredDrones);
+            }
+        });
+
+        // Recherche en temps réel drones
+        const droneSearchInput = document.getElementById('drone-search');
+        if (droneSearchInput) {
+            droneSearchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (!query.trim()) {
+                    renderDroneComparisonTable(droneDBExtended);
+                    return;
+                }
+                
+                const filtered = droneDBExtended.filter(drone =>
+                    drone.name.toLowerCase().includes(query) ||
+                    drone.type.toLowerCase().includes(query) ||
+                    drone.category.toLowerCase().includes(query) ||
+                    drone.country.toLowerCase().includes(query)
+                );
+                
+                renderDroneComparisonTable(filtered);
+            });
+        }
+
+        // Recherche globale avec Enter
+        const globalSearchInput = document.getElementById('global-search-input');
+        if (globalSearchInput) {
+            globalSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performGlobalSearch();
+                }
+            });
+        }
+
+        // ... (le reste du code d'initialisation Firebase)...
+    </script>
 </body>
 </html>
