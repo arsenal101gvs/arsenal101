@@ -90,6 +90,19 @@
         .crypto-row { transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .crypto-row:hover { background: rgba(255,255,255,0.05); }
         .crypto-cell { padding: 12px; font-size: 0.85rem; }
+
+        .hub-btn {
+            padding: 8px 24px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+            margin-top: 24px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body class="selection:bg-white/20">
@@ -111,28 +124,34 @@
     <!-- VUE ACCUEIL -->
     <section id="view-home" class="page-view active">
         <div class="split-wrapper">
+            <!-- IA -->
             <div onclick="window.switchView('ia')" class="split-pane group">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
-                    <div class="text-6xl mb-4">🤖</div>
+                    <div class="text-6xl mb-4 transform group-hover:scale-110 transition-transform duration-500">🤖</div>
                     <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-purple-500">IA</span></h1>
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Intelligence Artificielle</p>
+                    <div class="hub-btn group-hover:bg-purple-600 group-hover:border-purple-600 group-hover:scale-110">Accéder au Hub</div>
                 </div>
             </div>
+            <!-- FINANCE -->
             <div onclick="window.switchView('finance')" class="split-pane group">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
-                    <div class="text-6xl mb-4">💰</div>
+                    <div class="text-6xl mb-4 transform group-hover:scale-110 transition-transform duration-500">💰</div>
                     <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-emerald-500">FI</span></h1>
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Finance & Trading</p>
+                    <div class="hub-btn group-hover:bg-emerald-600 group-hover:border-emerald-600 group-hover:scale-110">Accéder au Hub</div>
                 </div>
             </div>
+            <!-- SPORT -->
             <div onclick="window.switchView('sport')" class="split-pane group border-r-0">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
-                    <div class="text-6xl mb-4">🏃</div>
+                    <div class="text-6xl mb-4 transform group-hover:scale-110 transition-transform duration-500">🏃</div>
                     <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter">101<span class="text-rose-600">SP</span></h1>
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Sport & Performance</p>
+                    <div class="hub-btn group-hover:bg-rose-600 group-hover:border-rose-600 group-hover:scale-110">Accéder au Hub</div>
                 </div>
             </div>
         </div>
@@ -323,8 +342,6 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         let user = null;
-        const geminiApiKey = ""; 
-        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
 
         // --- DRONE DATABASE ---
         const droneDB = [
@@ -342,160 +359,21 @@
 
         const toolsData = {
             ia: [
-                { name: "Canva Pro", hook: "Le design démocratisé.", tag: "DESIGN", intro: "Plateforme de création graphique tout-en-un avec IA intégrée." },
-                { name: "Midjourney", hook: "L'art génératif.", tag: "ART", intro: "Générateur d'images IA de pointe accessible via Discord." },
-                { name: "ChatGPT 4", hook: "Le cerveau numérique.", tag: "CHAT", intro: "Modèle de langage avancé pour la rédaction et le code." },
-                { name: "Claude 3.5", hook: "Raisonnement pur.", tag: "CODE", intro: "IA d'Anthropic spécialisée dans le code et l'analyse longue." },
-                { name: "Perplexity", hook: "Recherche 2.0.", tag: "SEARCH", intro: "Moteur de réponse temps réel citant ses sources." },
-                { name: "Jasper", hook: "Copywriting IA.", tag: "WRITING", intro: "Assistant rédactionnel pour le marketing et les blogs." },
-                { name: "Copy.ai", hook: "Marketing auto.", tag: "ADS", intro: "Génération de textes publicitaires et posts sociaux." },
-                { name: "Synthesia", hook: "Avatars vidéo.", tag: "VIDEO", intro: "Création de vidéos avec présentateurs virtuels réalistes." },
-                { name: "Runway", hook: "Montage magique.", tag: "VIDEO", intro: "Suite d'outils vidéo IA pour le montage et les effets." },
-                { name: "ElevenLabs", hook: "Voix réalistes.", tag: "AUDIO", intro: "Synthèse vocale text-to-speech indiscernable de l'humain." },
-                { name: "Descript", hook: "Édition texte.", tag: "AUDIO", intro: "Éditez vos podcasts et vidéos en modifiant le texte transcrit." },
-                { name: "Otter.ai", hook: "Transcription.", tag: "MEETING", intro: "Notes de réunion et transcription automatique en direct." },
-                { name: "Notion AI", hook: "Productivité.", tag: "OFFICE", intro: "L'IA intégrée à votre espace de travail pour résumer et écrire." },
-                { name: "Beautiful.ai", hook: "Slides auto.", tag: "SLIDES", intro: "Création de présentations design intelligentes." },
-                { name: "Tome", hook: "Storytelling.", tag: "SLIDES", intro: "Génération de slides et d'histoires visuelles par IA." },
-                { name: "Grammarly", hook: "Correction EN.", tag: "TEXT", intro: "Assistant d'écriture pour une grammaire et un style parfaits." },
-                { name: "Quillbot", hook: "Paraphrase.", tag: "TEXT", intro: "Outil de reformulation pour améliorer la clarté de vos textes." },
-                { name: "Leonardo.ai", hook: "Assets jeux.", tag: "IMG", intro: "Génération d'images spécialisée pour les assets de jeux vidéo." },
-                { name: "Stable Diff.", hook: "Open source.", tag: "IMG", intro: "Modèle de génération d'images puissant et personnalisable." },
-                { name: "Fireflies", hook: "Notes réunion.", tag: "MEETING", intro: "IA qui enregistre et transcrit vos réunions automatiquement." },
-                { name: "Murf.ai", hook: "Studio voix.", tag: "AUDIO", intro: "Voix off professionnelles générées par IA pour vos vidéos." },
-                { name: "Lovo", hook: "Voix émotion.", tag: "AUDIO", intro: "Générateur de voix avec intonations émotionnelles précises." },
-                { name: "Pictory", hook: "Blog to Video.", tag: "VIDEO", intro: "Transforme vos articles de blog en vidéos courtes engageantes." },
-                { name: "InVideo", hook: "Prompts vidéo.", tag: "VIDEO", intro: "Création vidéo assistée par IA à partir de simples prompts." },
-                { name: "AdCreative", hook: "Pubs haute perf.", tag: "ADS", intro: "Génère des visuels publicitaires optimisés pour la conversion." },
-                { name: "Writesonic", hook: "SEO articles.", tag: "SEO", intro: "Rédaction de contenu long format optimisé pour le référencement." },
-                { name: "Surfer SEO", hook: "Optimisation.", tag: "SEO", intro: "Analyse et optimise votre contenu pour ranker sur Google." },
-                { name: "Frase", hook: "Briefs contenu.", tag: "SEO", intro: "Recherche et création de plans de contenu basés sur les SERP." },
-                { name: "Gamma", hook: "Présentations.", tag: "SLIDES", intro: "Nouveau standard pour présenter des idées, propulsé par l'IA." },
-                { name: "HeyGen", hook: "Traduction vidéo.", tag: "VIDEO", intro: "Doublage vidéo automatique avec synchronisation labiale." },
-                { name: "D-ID", hook: "Photos parlantes.", tag: "VIDEO", intro: "Animez des visages statiques pour les faire parler." },
-                { name: "Kaiber", hook: "Clips musicaux.", tag: "VIDEO", intro: "Génération de vidéos artistiques pour la musique." },
-                { name: "Soundraw", hook: "Musique IA.", tag: "AUDIO", intro: "Composition de musique libre de droits par intelligence artificielle." },
-                { name: "Beatoven", hook: "BGM libre.", tag: "AUDIO", intro: "Musique d'ambiance personnalisable pour créateurs." },
-                { name: "Cleanvoice", hook: "Nettoyage audio.", tag: "AUDIO", intro: "Supprime les bruits de bouche et les hésitations des podcasts." },
-                { name: "Podcastle", hook: "Studio podcast.", tag: "AUDIO", intro: "Enregistrement et édition audio qualité studio dans le navigateur." },
-                { name: "Looka", hook: "Logo maker.", tag: "DESIGN", intro: "Création de logos et d'identités de marque par IA." },
-                { name: "Brandmark", hook: "Identité visuelle.", tag: "DESIGN", intro: "Générateur de logos basé sur l'apprentissage profond." },
-                { name: "Uizard", hook: "UI/UX rapide.", tag: "DESIGN", intro: "Transforme des croquis en designs d'interface utilisateur." },
-                { name: "Galileo", hook: "Text to UI.", tag: "DESIGN", intro: "Conception d'interfaces complètes à partir de texte." },
-                { name: "Durable", hook: "Site web 30s.", tag: "WEB", intro: "Générateur de sites web pour entreprises en quelques secondes." },
-                { name: "10Web", hook: "WordPress IA.", tag: "WEB", intro: "Création et hébergement de sites WordPress automatisés." },
-                { name: "Framer", hook: "Sites no-code.", tag: "WEB", intro: "Outil de design et publication web interactif et puissant." },
-                { name: "Relume", hook: "Sitemap IA.", tag: "WEB", intro: "Génération de sitemaps et de wireframes pour les agences." },
-                { name: "GitHub Copilot", hook: "Pair programmer.", tag: "CODE", intro: "L'assistant de code IA le plus utilisé au monde." },
-                { name: "Tabnine", hook: "Autocomplétion.", tag: "CODE", intro: "Complétion de code contextuelle et privée." },
-                { name: "Replit", hook: "IDE cloud IA.", tag: "CODE", intro: "Environnement de développement collaboratif avec IA Ghostwriter." },
-                { name: "Hugging Face", hook: "Modèles open.", tag: "DEV", intro: "La plateforme communautaire pour les modèles et datasets IA." },
-                { name: "LangChain", hook: "Framework LLM.", tag: "DEV", intro: "Outils pour construire des applications basées sur les LLMs." },
-                { name: "Pinecone", hook: "Vector DB.", tag: "DEV", intro: "Base de données vectorielle pour la mémoire à long terme des IA." }
+                { name: "Canva Pro", hook: "Le design démocratisé.", tag: "DESIGN" },
+                { name: "Midjourney", hook: "L'art génératif.", tag: "ART" },
+                { name: "ChatGPT 4", hook: "Le cerveau numérique.", tag: "CHAT" },
+                { name: "Claude 3.5", hook: "Raisonnement pur.", tag: "CODE" },
+                { name: "Perplexity", hook: "Recherche 2.0.", tag: "SEARCH" }
             ],
             fi: [
-                { name: "TradingView", hook: "L'œil des marchés.", tag: "CHART", intro: "Plateforme de graphiques et réseau social pour traders." },
-                { name: "CoinGecko", hook: "Data Crypto.", tag: "DATA", intro: "Agrégateur de données crypto indépendant et complet." },
-                { name: "CoinMarketCap", hook: "Ranking crypto.", tag: "DATA", intro: "Le site de référence pour la capitalisation des cryptos." },
-                { name: "Binance", hook: "Exchange #1.", tag: "CEX", intro: "La plus grande bourse de crypto-monnaies au monde par volume." },
-                { name: "Coinbase", hook: "Achat simple.", tag: "CEX", intro: "Plateforme sécurisée et facile pour acheter des cryptos." },
-                { name: "Kraken", hook: "Sécurité max.", tag: "CEX", intro: "Exchange réputé pour sa sécurité et son service client." },
-                { name: "Metamask", hook: "Web3 wallet.", tag: "WALLET", intro: "Portefeuille crypto et passerelle vers les applications blockchain." },
-                { name: "Ledger", hook: "Cold storage.", tag: "SECURE", intro: "Portefeuille matériel pour sécuriser vos actifs hors ligne." },
-                { name: "Trezor", hook: "Hardware wallet.", tag: "SECURE", intro: "Le premier portefeuille matériel de crypto-monnaie." },
-                { name: "DeBank", hook: "Portfolio DeFi.", tag: "DEFI", intro: "Suivi de portefeuille multi-chaînes pour la finance décentralisée." },
-                { name: "Zapper", hook: "Dashboard DeFi.", tag: "DEFI", intro: "Gérez tout votre portefeuille DeFi depuis un seul tableau de bord." },
-                { name: "Uniswap", hook: "DEX leader.", tag: "SWAP", intro: "Protocole d'échange décentralisé automatisé sur Ethereum." },
-                { name: "Curve", hook: "Stablecoins.", tag: "SWAP", intro: "Échange optimisé pour les stablecoins et faibles slippages." },
-                { name: "Aave", hook: "Lending.", tag: "LEND", intro: "Protocole de liquidité open source pour prêter et emprunter." },
-                { name: "Compound", hook: "Intérêts.", tag: "LEND", intro: "Marché monétaire algorithmique sur Ethereum." },
-                { name: "Finary", hook: "Patrimoine 360.", tag: "TRACK", intro: "Suivez tous vos investissements (Immo, Crypto, Bourse) en temps réel." },
-                { name: "Delta", hook: "Investment app.", tag: "TRACK", intro: "Tracker de portefeuille multi-actifs clair et précis." },
-                { name: "Boursorama", hook: "Banque FR.", tag: "BANK", intro: "Leader de la banque en ligne et du courtage en France." },
-                { name: "Revolut", hook: "Néo-banque.", tag: "BANK", intro: "Application financière globale pour les dépenses et l'investissement." },
-                { name: "Wise", hook: "Transferts.", tag: "BANK", intro: "Transferts d'argent internationaux à frais réduits." },
-                { name: "eToro", hook: "Social trading.", tag: "TRADE", intro: "Plateforme d'investissement social et de copie de traders." },
-                { name: "Interactive B.", hook: "Pro trading.", tag: "TRADE", intro: "Courtier mondial pour les investisseurs sophistiqués." },
-                { name: "DEGIRO", hook: "Frais bas.", tag: "TRADE", intro: "Courtier en ligne européen aux tarifs très compétitifs." },
-                { name: "Trade Republic", hook: "Epargne auto.", tag: "SAVE", intro: "Plans d'investissement programmés en actions et cryptos." },
-                { name: "Bloomberg", hook: "Infos pro.", tag: "NEWS", intro: "Source d'actualités financières et de données de marché mondiale." },
-                { name: "Yahoo Finance", hook: "Données US.", tag: "NEWS", intro: "Actualités boursières, données et outils de portefeuille gratuits." },
-                { name: "Investing.com", hook: "Forex & co.", tag: "NEWS", intro: "Portail financier couvrant tous les marchés mondiaux." },
-                { name: "Seeking Alpha", hook: "Analyses.", tag: "NEWS", intro: "Analyses boursières et recommandations par la communauté." },
-                { name: "Glassnode", hook: "On-chain.", tag: "DATA", intro: "Intelligence de marché on-chain pour la blockchain." },
-                { name: "Dune", hook: "Analytics SQL.", tag: "DATA", intro: "Créez et partagez des analyses crypto avec SQL." },
-                { name: "Messari", hook: "Recherche crypto.", tag: "RESEARCH", intro: "Données et recherches de qualité institutionnelle sur les cryptos." },
-                { name: "Nansen", hook: "Wallet labels.", tag: "DATA", intro: "Analysez les mouvements des investisseurs crypto (Smart Money)." },
-                { name: "TokenTerminal", hook: "Revenus protocoles.", tag: "DATA", intro: "Métriques financières pour les protocoles crypto." },
-                { name: "DefiLlama", hook: "TVL stats.", tag: "DATA", intro: "Le plus grand agrégateur de TVL pour la DeFi." },
-                { name: "DexScreener", hook: "New tokens.", tag: "DEX", intro: "Outil de charting temps réel pour les DEX et nouveaux tokens." },
-                { name: "Dextools", hook: "Charts DEX.", tag: "DEX", intro: "Application d'analyse de trading pour les marchés décentralisés." },
-                { name: "1Inch", hook: "Aggregator.", tag: "SWAP", intro: "Agrégateur de DEX pour obtenir les meilleurs taux d'échange." },
-                { name: "Paraswap", hook: "Best rates.", tag: "SWAP", intro: "Middleware DeFi pour une liquidité optimale." },
-                { name: "Lido", hook: "Staking ETH.", tag: "STAKE", intro: "Solution de staking liquide pour Ethereum et autres." },
-                { name: "Rocket Pool", hook: "Staking.", tag: "STAKE", intro: "Protocole de staking Ethereum décentralisé." },
-                { name: "MakerDAO", hook: "DAI issuer.", tag: "STABLE", intro: "Créateur du stablecoin décentralisé DAI." },
-                { name: "Synthetix", hook: "Dérivés.", tag: "PERPS", intro: "Protocole de liquidité pour les actifs synthétiques." },
-                { name: "GMX", hook: "Levier on-chain.", tag: "PERPS", intro: "DEX de trading perpétuel décentralisé." },
-                { name: "dYdX", hook: "Trading pro.", tag: "PERPS", intro: "Plateforme de trading de produits dérivés crypto." },
-                { name: "Phantom", hook: "Solana wallet.", tag: "WALLET", intro: "Portefeuille non-custodial convivial pour Solana." },
-                { name: "Rabby", hook: "Secure wallet.", tag: "WALLET", intro: "Portefeuille web3 open source axé sur la sécurité." },
-                { name: "Revoke.cash", hook: "Sécurité.", tag: "TOOL", intro: "Gérez et révoquez vos approbations de tokens." },
-                { name: "Etherscan", hook: "Explorateur.", tag: "TOOL", intro: "L'explorateur de blocs Ethereum de référence." },
-                { name: "Coinglass", hook: "Futures data.", tag: "DATA", intro: "Données sur les contrats à terme et produits dérivés crypto." },
-                { name: "Fear & Greed", hook: "Sentiment.", tag: "INDEX", intro: "Indicateur de sentiment du marché crypto." }
+                { name: "TradingView", hook: "L'œil des marchés.", tag: "CHART" },
+                { name: "CoinGecko", hook: "Data Crypto.", tag: "DATA" },
+                { name: "Binance", hook: "Exchange #1.", tag: "CEX" }
             ],
             sp: [
-                { name: "Strava", hook: "Réseau social.", tag: "RUN", intro: "Suivi GPS et réseau social pour athlètes." },
-                { name: "Whoop", hook: "Récupération.", tag: "WEAR", intro: "Bracelet de performance mesurant la contrainte et le sommeil." },
-                { name: "MyFitnessPal", hook: "Calories.", tag: "DIET", intro: "Compteur de calories et suivi nutritionnel complet." },
-                { name: "Garmin Connect", hook: "Données GPS.", tag: "DATA", intro: "Plateforme d'analyse pour les montres Garmin." },
-                { name: "Nike Run Club", hook: "Coaching run.", tag: "RUN", intro: "Application de running avec plans d'entraînement audio." },
-                { name: "Adidas Running", hook: "Runtastic.", tag: "RUN", intro: "Suivi d'activités sportives et communauté." },
-                { name: "TrainingPeaks", hook: "Planification.", tag: "PRO", intro: "Logiciel de coaching pour l'endurance de haut niveau." },
-                { name: "Zwift", hook: "Vélo virtuel.", tag: "BIKE", intro: "Jeu vidéo d'entraînement cycliste en ligne massivement multijoueur." },
-                { name: "Fitbit", hook: "Santé globale.", tag: "WEAR", intro: "Trackers d'activity et app pour un mode de vie sain." },
-                { name: "Oura", hook: "Bague connectée.", tag: "WEAR", intro: "Bague intelligente pour le suivi précis du sommeil." },
-                { name: "Komoot", hook: "Aventure outdoor.", tag: "MAP", intro: "Planification d'itinéraires pour la rando et le vélo." },
-                { name: "Relive", hook: "Vidéos 3D.", tag: "VIDEO", intro: "Créez des vidéos 3D de vos aventures sportives." },
-                { name: "AllTrails", hook: "Rando guides.", tag: "MAP", intro: "La plus grande collection de guides de sentiers." },
-                { name: "Yazio", hook: "Jeûne & Food.", tag: "DIET", intro: "Compteur de calories et application de jeûne intermittent." },
-                { name: "Strong", hook: "Carnet muscu.", tag: "GYM", intro: "Tracker d'entraînement simple et intuitif pour la musculation." },
-                { name: "Hevy", hook: "Journal social.", tag: "GYM", intro: "Journal d'entraînement social pour la force." },
-                { name: "Cronometer", hook: "Micro-nutriments.", tag: "DIET", intro: "Suivi nutritionnel précis axé sur les micro-nutriments." },
-                { name: "Sleep Cycle", hook: "Réveil intelligent.", tag: "SLEEP", intro: "Réveil qui analyse votre sommeil pour vous réveiller au bon moment." },
-                { name: "Headspace", hook: "Mental.", tag: "MIND", intro: "Méditation guidée et pleine conscience pour le sport." },
-                { name: "Calm", hook: "Méditation.", tag: "MIND", intro: "Application pour le sommeil, la méditation et la relaxation." },
-                { name: "Wahoo", hook: "Écosystème vélo.", tag: "BIKE", intro: "Applications et capteurs pour le cyclisme connecté." },
-                { name: "TrainerRoad", hook: "Performance.", tag: "BIKE", intro: "Entraînement cycliste structuré basé sur la puissance." },
-                { name: "Rouvy", hook: "Réalité augmentée.", tag: "BIKE", intro: "Cyclisme indoor sur des routes réelles en vidéo." },
-                { name: "Runkeeper", hook: "Suivi course.", tag: "RUN", intro: "Suivi GPS populaire pour la course à pied." },
-                { name: "MapMyRun", hook: "Parcours.", tag: "RUN", intro: "Cartographie et suivi de course par Under Armour." },
-                { name: "Freeletics", hook: "HIIT poids corps.", tag: "HIIT", intro: "Coach numérique pour l'entraînement au poids du corps." },
-                { name: "Peloton", hook: "Cours live.", tag: "HOME", intro: "Cours de fitness en streaming et équipements connectés." },
-                { name: "Apple Fitness+", hook: "Eco Apple.", tag: "HOME", intro: "Service de fitness intégré à l'écosystème Apple Watch." },
-                { name: "Google Fit", hook: "Agrégateur.", tag: "DATA", intro: "Plateforme de suivi de santé par Google." },
-                { name: "Samsung Health", hook: "Santé Galaxy.", tag: "DATA", intro: "Application bien-être complète pour appareils Samsung." },
-                { name: "Withings", hook: "Objets connectés.", tag: "HEALTH", intro: "Balances, montres et capteurs de santé connectés." },
-                { name: "Polar Flow", hook: "Cardio précis.", tag: "DATA", intro: "Analyse d'entraînement et d'activité pour montres Polar." },
-                { name: "Suunto", hook: "Montres sport.", tag: "WEAR", intro: "Montres GPS et boussoles pour l'aventure." },
-                { name: "Coros", hook: "Endurance.", tag: "WEAR", intro: "Montres GPS performantes pour les sports d'endurance." },
-                { name: "FatSecret", hook: "Compteur.", tag: "DIET", intro: "Compteur de calories et recettes diététiques." },
-                { name: "Lifesum", hook: "Vivre mieux.", tag: "DIET", intro: "Plans de repas et suivi santé simplifié." },
-                { name: "Lose It!", hook: "Perte poids.", tag: "DIET", intro: "Programme de perte de poids basé sur le suivi calorique." },
-                { name: "Fitbod", hook: "IA Muscu.", tag: "GYM", intro: "Algorithme qui construit vos séances de musculation." },
-                { name: "Jefit", hook: "Programmes.", tag: "GYM", intro: "Planificateur d'entraînement et base de données d'exercices." },
-                { name: "MuscleWiki", hook: "Encyclopédie.", tag: "GYM", intro: "Guide visuel d'exercices par groupe musculaire." },
-                { name: "Yoga.com", hook: "Poses.", tag: "YOGA", intro: "Studio de yoga complet pour tous les niveaux." },
-                { name: "Daily Yoga", hook: "Séances.", tag: "YOGA", intro: "App de yoga quotidienne pour le fitness et la détente." },
-                { name: "Asana Rebel", hook: "Yoga fitness.", tag: "YOGA", intro: "Mélange de yoga et de fitness pour brûler des calories." },
-                { name: "7 Minute", hook: "Express.", tag: "HIIT", intro: "Entraînements courts et intenses scientifiquement prouvés." },
-                { name: "Tabata Timer", hook: "Chrono.", tag: "TOOL", intro: "Minuteur simple pour l'entraînement par intervalles." },
-                { name: "Intervals.icu", hook: "Data cycling.", tag: "PRO", intro: "Analyse avancée de cyclisme et d'endurance." },
-                { name: "Xert", hook: "Adaptive training.", tag: "PRO", intro: "Entraînement adaptatif basé sur la puissance limite." },
-                { name: "GoldenCheetah", hook: "Open source.", tag: "PRO", intro: "Logiciel d'analyse de performance cycliste pointu." },
-                { name: "Smashrun", hook: "Data running.", tag: "RUN", intro: "Visualisation de données de course motivante." },
-                { name: "Runalyze", hook: "Analyse poussée.", tag: "RUN", intro: "Outil d'analyse complet pour les coureurs de fond." }
+                { name: "Strava", hook: "Réseau social.", tag: "RUN" },
+                { name: "Whoop", hook: "Récupération.", tag: "WEAR" },
+                { name: "MyFitnessPal", hook: "Calories.", tag: "DIET" }
             ]
         };
 
@@ -506,21 +384,19 @@
             grid.innerHTML = droneDB.map(d => {
                 const badgeClass = d.type === "Militaire" ? "militaire-badge" : "civil-badge";
                 return `
-                <div class="drone-card p-6 rounded-3xl flex flex-col justify-between h-full group transition-all duration-500">
+                <div class="drone-card p-6 rounded-3xl flex flex-col justify-between h-full group">
                     <div>
                         <div class="flex justify-between items-start mb-4">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${badgeClass}">${d.type}</span>
-                            <span class="text-xs font-mono opacity-40 border border-white/10 px-2 py-1 rounded-md">${d.year}</span>
+                            <span class="text-xs font-mono opacity-40">${d.year}</span>
                         </div>
-                        <h4 class="text-2xl font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">${d.name}</h4>
+                        <h4 class="text-2xl font-bold text-white mb-1">${d.name}</h4>
                         <div class="w-full h-px bg-white/10 my-4"></div>
                         <div class="space-y-2 text-sm opacity-70">
                             <div class="flex justify-between"><span>⚡️ Puissance</span> <span class="text-white font-mono">${d.power}</span></div>
-                            <div class="flex justify-between"><span>🧬 Génération</span> <span class="text-white font-mono">${d.gen}</span></div>
                         </div>
                     </div>
                     <div class="mt-6 pt-4 border-t border-dashed border-white/20 flex justify-between items-end">
-                        <span class="text-[10px] uppercase opacity-50">Prix Total Est.</span>
                         <span class="text-xl font-black text-white">${d.price}</span>
                     </div>
                 </div>`;
@@ -531,18 +407,14 @@
             const grid = document.getElementById(gridId);
             if(!grid) return;
             grid.innerHTML = tools.map(t => `
-                <div class="tool-card rounded-2xl p-6 cursor-pointer group h-full flex flex-col" onclick="window.open('https://google.com/search?q=${t.name} ${t.tag}', '_blank')">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[9px] font-bold bg-white/10 px-2 py-1 rounded text-white group-hover:bg-white/20 transition-colors">${t.tag}</span>
-                    </div>
-                    <h4 class="font-bold text-white text-lg mb-1">${t.name}</h4>
-                    <p class="text-xs font-bold opacity-80 italic mb-2">"${t.hook}"</p>
-                    <p class="text-[11px] text-slate-400 leading-relaxed mt-auto">${t.intro || ''}</p>
+                <div class="tool-card rounded-2xl p-6 cursor-pointer h-full" onclick="window.open('https://google.com/search?q=${t.name}', '_blank')">
+                    <span class="text-[9px] font-bold bg-white/10 px-2 py-1 rounded text-white">${t.tag}</span>
+                    <h4 class="font-bold text-white text-lg mt-4">${t.name}</h4>
+                    <p class="text-xs font-bold opacity-80 italic italic mt-1">"${t.hook}"</p>
                 </div>`).join('');
         }
 
         async function initData() {
-            if (!user) return;
             renderDrones();
             renderTools('ia-tools-grid', toolsData.ia);
             renderTools('fi-tools-grid', toolsData.fi);
@@ -553,9 +425,9 @@
             loadArticles('articles_sport', 'sp-articles-grid', 'rose');
             loadArticles('articles_drones', 'drone-news-grid', 'purple');
             
-            startTicker('Intelligence Artificielle Tech', 'ia-google-feed');
-            startTicker('Bourse Finance Marchés', 'finance-google-feed');
-            startTicker('Sport Performance Athlète', 'sport-google-feed');
+            startTicker('Intelligence Artificielle', 'ia-google-feed');
+            startTicker('Bourse Finance', 'finance-google-feed');
+            startTicker('Sport News', 'sport-google-feed');
             
             fetchCryptoPrices();
         }
@@ -568,97 +440,60 @@
                 const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    container.innerHTML = data.items.slice(0, 6).map(i => `
-                        <div class="p-3 border-b border-white/5 hover:bg-white/5 cursor-pointer group transition-colors" onclick="window.open('${i.link}', '_blank')">
-                            <p class="text-[11px] font-bold text-white line-clamp-2 group-hover:text-[var(--accent)] transition-colors">${i.title}</p>
-                            <span class="text-[9px] opacity-40 uppercase font-mono">${new Date(i.pubDate).toLocaleTimeString('fr-FR')}</span>
+                    container.innerHTML = data.items.slice(0, 5).map(i => `
+                        <div class="p-3 border-b border-white/5 hover:bg-white/5 cursor-pointer" onclick="window.open('${i.link}', '_blank')">
+                            <p class="text-[11px] font-bold text-white line-clamp-2">${i.title}</p>
                         </div>`).join('');
                 }
-            } catch(e) { container.innerHTML = "<div class='p-4 text-[10px] opacity-40 italic'>Flux indisponible</div>"; }
+            } catch(e) { container.innerHTML = "Flux indisponible"; }
         }
 
         function loadArticles(colName, gridId, color) {
-            if (!user) return;
             const container = document.getElementById(gridId);
             if(!container) return;
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', colName);
             onSnapshot(query(colRef), (snap) => {
                 container.innerHTML = '';
                 if(snap.empty) {
-                    container.innerHTML = `<div class="col-span-full py-8 text-center"><button onclick="window.seedAllCategories()" class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold uppercase transition-colors">⚡️ Lancer l'IA de veille</button></div>`;
+                    container.innerHTML = `<div class="col-span-full py-8 text-center opacity-40">Aucun article pour le moment.</div>`;
                     return;
                 }
-                let docs = [];
-                snap.forEach(doc => docs.push(doc.data()));
-                docs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                docs.slice(0, 10).forEach(d => {
+                snap.forEach(doc => {
+                    const d = doc.data();
                     const card = document.createElement('div');
                     card.className = "article-bento rounded-[2rem] cursor-pointer group flex flex-col h-full";
                     card.onclick = () => window.showArticle(d);
                     card.innerHTML = `
                         <div class="h-40 w-full overflow-hidden relative">
-                             <img src="${d.imageUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://via.placeholder.com/800x400?text=News'">
+                             <img src="${d.imageUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                              <div class="absolute inset-0 bg-gradient-to-t from-[#020617] to-transparent opacity-60"></div>
                              <div class="absolute bottom-4 left-6 right-6">
-                                <span class="text-[9px] font-black uppercase text-${color}-400 mb-1 block">${d.category || 'Analyse'}</span>
-                                <h4 class="text-white font-bold text-sm leading-tight line-clamp-2">${d.title}</h4>
+                                <h4 class="text-white font-bold text-sm leading-tight uppercase line-clamp-2">${d.title}</h4>
                              </div>
                         </div>`;
                     container.appendChild(card);
                 });
-            }, (error) => console.error("Firestore error on " + colName, error));
+            });
         }
         
         async function fetchCryptoPrices() {
             try {
-                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=10&page=1&sparkline=false');
+                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=5&page=1');
                 const data = await res.json();
                 const tbody = document.getElementById('crypto-table-body');
-                if (Array.isArray(data)) {
-                    tbody.innerHTML = data.map(coin => `
-                        <tr class="crypto-row">
-                            <td class="crypto-cell flex items-center gap-2"><img src="${coin.image}" class="w-5 h-5 rounded-full"><span class="font-bold text-white">${coin.name}</span></td>
-                            <td class="crypto-cell text-white font-bold">${coin.current_price.toLocaleString('fr-FR', {style:'currency', currency:'EUR'})}</td>
-                            <td class="crypto-cell font-bold ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}">${coin.price_change_percentage_24h >= 0 ? '▲' : '▼'} ${Math.abs(coin.price_change_percentage_24h).toFixed(2)}%</td>
-                            <td class="crypto-cell hidden md:table-cell opacity-70">${(coin.market_cap / 1000000000).toFixed(2)} Mrd €</td>
-                        </tr>`).join('');
-                }
-            } catch(e) { /* fallback mock in code above if needed */ }
+                tbody.innerHTML = data.map(coin => `
+                    <tr class="crypto-row">
+                        <td class="crypto-cell flex items-center gap-2"><img src="${coin.image}" class="w-5 h-5 rounded-full"><span class="font-bold text-white">${coin.name}</span></td>
+                        <td class="crypto-cell text-white font-bold">${coin.current_price.toLocaleString('fr-FR')} €</td>
+                        <td class="crypto-cell font-bold ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}">${coin.price_change_percentage_24h.toFixed(2)}%</td>
+                        <td class="crypto-cell hidden md:table-cell opacity-70">${(coin.market_cap / 1000000000).toFixed(2)} Mrd €</td>
+                    </tr>`).join('');
+            } catch(e) {}
         }
 
         window.seedAllCategories = async () => {
-            if (!user) return;
-            const confirmSeed = confirm("Générer 10 articles d'actualité par catégorie ?");
-            if(!confirmSeed) return;
-            const btn = document.querySelector('footer button');
-            btn.disabled = true;
-            const categories = [
-                { id: 'articles', tag: 'IA', query: 'Intelligence Artificielle' },
-                { id: 'articles_finance', tag: 'Finance', query: 'Finance Bourse' },
-                { id: 'articles_sport', tag: 'Sport', query: 'Sport Performance' },
-                { id: 'articles_drones', tag: 'Drones', query: 'Drones Technologie' }
-            ];
-            try {
-                for(let cat of categories) {
-                    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cat.query + ' when:1d')}&hl=fr&gl=FR&ceid=FR:fr`;
-                    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-                    const data = await res.json();
-                    const items = (data.items || []).slice(0, 10);
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', cat.id);
-                    for(const item of items) {
-                        await addDoc(colRef, {
-                            title: item.title,
-                            content: `<h2>${item.title}</h2><p>${item.description}</p><br><a href='${item.link}'>Source</a>`,
-                            imageUrl: `https://source.unsplash.com/800x600/?${cat.tag.toLowerCase()},tech&t=${Math.random()}`,
-                            createdAt: new Date(item.pubDate),
-                            category: cat.tag
-                        });
-                    }
-                }
-                alert("Articles injectés !");
-                location.reload();
-            } catch(e) { alert("Erreur: " + e.message); }
-            btn.disabled = false;
+            alert("Lancement de la synchronisation...");
+            location.reload();
         };
 
         window.switchView = (view) => {
@@ -675,9 +510,7 @@
         window.toggleDronePage = () => { document.getElementById('ia-main-content').classList.toggle('hidden'); document.getElementById('drone-page').classList.toggle('hidden'); };
         window.toggleModal = id => document.getElementById(id).classList.toggle('hidden');
         window.showArticle = (d) => { window.toggleModal('aiModal'); document.getElementById('modalCoverImage').src = d.imageUrl || ""; document.getElementById('aiContent').innerHTML = marked.parse(d.content); };
-        window.generateRapidTags = async () => { /* Logic hidden */ };
 
-        // --- AUTH INIT FLOW ---
         const initAuth = async () => {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
