@@ -3,115 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO & BRANDING -->
     <title>Arsenal101 | L'Arsenal Digital Pro (Public Edition)</title>
     <meta name="description" content="Le hub ultime regroupant plus de 300 outils IA, Finance et Sport.">
-    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        
-        :root { 
-            --ia: 168, 85, 247; --fi: 16, 185, 129; --sp: 244, 63, 94; --bg: 2, 6, 23; --accent: 168, 85, 247;
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: rgb(var(--bg)); 
-            color: #f1f5f9; 
-            overflow-x: hidden;
-        }
-
-        /* Glassmorphism */
+        /* Style global et éléments */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: rgb(2, 6, 23); color: #f1f5f9; overflow-x: hidden; }
         .glass { background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        
         .page-view { display: none; min-height: 100vh; width: 100%; position: relative; padding-bottom: 5rem; }
         .page-view.active { display: block; animation: fadeIn 0.6s ease-out; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
         .split-wrapper { display: flex; height: 100vh; width: 100%; overflow: hidden; background: #000; }
-        .split-pane { 
-            position: relative; width: 33.33%; height: 100%; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        .split-pane { width: 33.33%; height: 100%; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; cursor: pointer; }
         @media (min-width: 1024px) {
             .split-pane:hover { width: 45%; }
             .split-wrapper:hover .split-pane:not(:hover) { width: 27.5%; filter: brightness(0.4) blur(4px); }
         }
-
-        .article-bento {
-            background: linear-gradient(135deg, rgba(var(--accent), 0.1) 0%, rgba(2, 6, 23, 0.6) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .article-bento:hover { border-color: rgba(var(--accent), 0.5); transform: translateY(-5px); }
-
-        .tag-pill {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .tag-pill:hover { background: rgba(var(--accent), 0.2); border-color: rgba(var(--accent), 0.4); }
-
-        .drone-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.3s;
-        }
-        .drone-card:hover { background: rgba(var(--ia), 0.1); border-color: rgba(var(--ia), 0.4); }
-        .militaire-badge { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-        .civil-badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-
-        .tool-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .tool-card:hover { 
-            background: rgba(255, 255, 255, 0.08); 
-            transform: translateY(-5px); 
-            border-color: rgba(var(--accent), 0.5);
-            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Crypto Table Styles */
-        .crypto-row { transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .crypto-row:hover { background: rgba(255,255,255,0.05); }
-        .crypto-cell { padding: 12px; font-size: 0.85rem; }
+        .article-bento { background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(2, 6, 23, 0.6) 100%); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .tag-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace; cursor: pointer; }
     </style>
 </head>
 <body class="selection:bg-white/20">
-
-    <!-- Modale Article -->
-    <div id="aiModal" class="fixed inset-0 bg-black/95 z-[110] hidden flex items-center justify-center p-0 sm:p-4">
-        <div class="glass w-full max-w-4xl h-full sm:h-[90vh] sm:rounded-[2.5rem] overflow-hidden relative border border-white/10 flex flex-col bg-[#0b0c15]">
-            <button onclick="window.toggleModal('aiModal')" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md z-20 text-white">✕</button>
-            <div id="articleImageHeader" class="h-64 md:h-80 w-full overflow-hidden shrink-0 relative">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c15] to-transparent z-10"></div>
-                <img id="modalCoverImage" src="" alt="Couverture" class="w-full h-full object-cover">
-            </div>
-            <div class="flex-1 overflow-y-auto p-8 md:p-16">
-                <div id="aiContent" class="prose prose-invert prose-xl max-w-none text-slate-200"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- VUE ACCUEIL -->
     <section id="view-home" class="page-view active">
         <div class="split-wrapper">
-            <div onclick="window.switchView('ia')" class="split-pane group">
+            <div onclick="switchView('ia')" class="split-pane group">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
                     <div class="text-6xl mb-4">🤖</div>
@@ -119,7 +38,7 @@
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Intelligence Artificielle</p>
                 </div>
             </div>
-            <div onclick="window.switchView('finance')" class="split-pane group">
+            <div onclick="switchView('finance')" class="split-pane group">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
                     <div class="text-6xl mb-4">💰</div>
@@ -127,7 +46,7 @@
                     <p class="text-[10px] tracking-[0.4em] font-black opacity-60 uppercase mt-4">Finance & Trading</p>
                 </div>
             </div>
-            <div onclick="window.switchView('sport')" class="split-pane group border-r-0">
+            <div onclick="switchView('sport')" class="split-pane group border-r-0">
                 <div class="pane-bg absolute inset-0 opacity-40 bg-center bg-cover" style="background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200');"></div>
                 <div class="pane-content text-center relative z-10 p-6">
                     <div class="text-6xl mb-4">🏃</div>
@@ -138,427 +57,131 @@
         </div>
     </section>
 
-    <!-- Navigation Globale -->
     <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl z-50 hidden">
         <div class="glass rounded-full px-8 py-3 flex justify-between items-center bg-[#020617]/80">
-            <button onclick="window.switchView('home')" class="text-xs font-black opacity-60 hover:opacity-100 transition-opacity uppercase tracking-widest">← HUB ARSENAL101</button>
+            <button onclick="switchView('home')" class="text-xs font-black opacity-60 hover:opacity-100 transition-opacity uppercase tracking-widest">← HUB ARSENAL101</button>
             <div class="text-xl font-black tracking-tighter uppercase">Arsenal 101</div>
-            <div class="flex items-center gap-4">
-                <span id="live-time" class="hidden md:block text-[10px] font-mono opacity-40 uppercase tracking-widest">00:00:00</span>
-            </div>
         </div>
     </nav>
 
-    <!-- SECTION IA -->
+    <!-- Flux RSS & Outils pour IA, Finance et Sport -->
     <section id="view-ia" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-12">
-            
-            <!-- Drone Intel Page (Affichage Conditionnel) -->
-            <div id="drone-page" class="hidden space-y-8 animate-fadeIn pb-12">
-                <div class="flex justify-between items-end border-b border-white/10 pb-6">
-                    <div>
-                        <h2 class="text-4xl font-black tracking-tighter text-white uppercase mb-2">Drone <span class="text-purple-400">Intelligence</span></h2>
-                        <p class="text-xs text-slate-400">Catalogue de référence : Civil & Militaire</p>
-                    </div>
-                    <button onclick="window.toggleDronePage()" class="text-xs font-bold opacity-40 hover:opacity-100 uppercase tracking-widest px-4 py-2 border border-white/20 rounded-full">← Retour au Hub IA</button>
-                </div>
-                
-                <!-- Articles Drones -->
-                <div class="space-y-4">
-                    <h3 class="text-xl font-black uppercase tracking-widest text-white">Actualités Drones (24h)</h3>
-                    <div id="drone-news-grid" class="grid md:grid-cols-2 gap-6 min-h-[200px]"></div>
-                </div>
-
-                <!-- Database Drones -->
-                <div class="space-y-4 pt-8">
-                     <h3 class="text-xl font-black uppercase tracking-widest text-white">Base de Données Techniques</h3>
-                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="drone-grid"></div>
-                </div>
-            </div>
-
-            <!-- Contenu Principal IA -->
-            <div id="ia-main-content" class="grid lg:grid-cols-4 gap-8">
-                <div class="lg:col-span-3 space-y-12">
-                    <!-- Hero Card Publique -->
-                    <div class="glass rounded-[2.5rem] p-10 border-l-4 border-purple-500 bg-gradient-to-r from-purple-900/20 to-transparent flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div>
-                            <h2 class="text-4xl md:text-5xl font-black tracking-tighter leading-tight">Veille <span class="text-purple-400">Technologique</span></h2>
-                            <p class="opacity-60 max-w-xl mt-2 text-sm">Explorez les dernières avancées en Intelligence Artificielle et Robotique.</p>
-                        </div>
-                        <div class="flex flex-col gap-2 w-full md:w-auto">
-                             <button onclick="window.toggleDronePage()" class="px-6 py-3 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                                🛸 Espace Drones
-                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Grille Articles -->
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-end">
-                            <h3 class="text-xl font-black uppercase tracking-widest text-purple-400">Derniers Articles (24h)</h3>
-                        </div>
-                        <div id="ia-articles-grid" class="grid md:grid-cols-2 gap-6 min-h-[200px]"></div>
-                    </div>
-
-                    <!-- Outils IA -->
-                    <div>
-                         <h3 class="text-xl font-black uppercase tracking-widest text-white mb-6">L'Arsenal IA (50+ Outils)</h3>
-                         <div id="ia-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="lg:col-span-1 space-y-8">
-                    <div class="glass p-8 rounded-[2rem] border-t-2 border-purple-500">
-                        <h3 class="font-black text-xl mb-4 text-white">Générateur <span class="text-purple-400">Tags SEO</span></h3>
-                        <p class="text-[10px] text-slate-400 mb-4">Optimisez votre visibilité YouTube.</p>
-                        <textarea id="rapidTagInput" rows="3" placeholder="Sujet vidéo..." class="text-sm mb-4"></textarea>
-                        <button onclick="window.generateRapidTags()" class="w-full py-4 bg-purple-600 text-white font-bold rounded-xl">🚀 Générer</button>
-                        <div id="rapidTagOutput" class="mt-4 hidden space-y-4">
-                            <div id="tags-comma" class="flex flex-wrap gap-2"></div>
-                            <div id="tags-hashtag" class="flex flex-wrap gap-2"></div>
-                        </div>
-                    </div>
-                    <div class="glass rounded-[2rem] p-6">
-                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50 text-purple-400">Actualités Tech (Live)</h3>
-                        <div id="ia-google-feed" class="space-y-2 text-sm min-h-[150px]"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="container mx-auto px-4 max-w-7xl space-y-8">
+            <h2 class="text-3xl font-bold text-white">Outils IA</h2>
+            <div id="ia-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <h2 class="text-3xl font-bold text-white mt-8">Actualités IA</h2>
+            <div id="ia-google-feed" class="space-y-2 text-sm"></div>
         </div>
     </section>
 
-    <!-- SECTION FINANCE -->
     <section id="view-finance" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-12">
-            
-            <div class="grid lg:grid-cols-4 gap-8">
-                <div class="lg:col-span-3 space-y-12">
-                    <!-- Crypto Market Table -->
-                    <div class="glass rounded-[2.5rem] p-8 border-l-4 border-emerald-500">
-                        <div class="flex justify-between items-end mb-6">
-                             <h2 class="text-3xl font-black tracking-tighter text-white">Crypto <span class="text-emerald-400">Live Market</span></h2>
-                             <span class="text-[10px] uppercase tracking-widest opacity-50">Données en temps réel</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="text-[10px] uppercase tracking-widest text-slate-400 border-b border-white/10">
-                                        <th class="p-3">Actif</th>
-                                        <th class="p-3">Prix</th>
-                                        <th class="p-3">24h %</th>
-                                        <th class="p-3 hidden md:table-cell">Capitalisation</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="crypto-table-body" class="font-mono text-sm">
-                                    <tr><td colspan="4" class="p-4 text-center opacity-50">Chargement des données...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="space-y-6">
-                        <h3 class="text-xl font-black uppercase tracking-widest text-emerald-400">Analyses de Marché (24h)</h3>
-                        <div id="fi-articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                    </div>
-                     <div>
-                         <h3 class="text-xl font-black uppercase tracking-widest text-white mb-6">L'Arsenal Finance (50+ Outils)</h3>
-                         <div id="fi-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-                    </div>
-                </div>
-                <div class="lg:col-span-1">
-                    <div class="glass rounded-[2rem] p-6">
-                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50 text-emerald-400">Flux Finance (Live)</h3>
-                        <div id="finance-google-feed" class="space-y-2 text-sm min-h-[150px]"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="container mx-auto px-4 max-w-7xl space-y-8">
+            <h2 class="text-3xl font-bold text-white">Outils Finance</h2>
+            <div id="fi-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <h2 class="text-3xl font-bold text-white mt-8">Actualités Finance</h2>
+            <div id="finance-google-feed" class="space-y-2 text-sm"></div>
         </div>
     </section>
 
-    <!-- SECTION SPORT -->
     <section id="view-sport" class="page-view pt-28">
-        <div class="container mx-auto px-4 max-w-7xl relative z-10 space-y-12">
-            <div class="grid lg:grid-cols-4 gap-8">
-                <div class="lg:col-span-3 space-y-12">
-                    <div class="glass rounded-[2.5rem] p-10 border-l-4 border-rose-500 bg-gradient-to-r from-rose-900/20 to-transparent">
-                        <h2 class="text-4xl md:text-5xl font-black tracking-tighter leading-tight">101Sport <span class="text-rose-400">& Performance</span></h2>
-                    </div>
-                     <div class="space-y-6">
-                        <h3 class="text-xl font-black uppercase tracking-widest text-rose-400">Chroniques Performance (24h)</h3>
-                        <div id="sp-articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                    </div>
-                    <div>
-                         <h3 class="text-xl font-black uppercase tracking-widest text-white mb-6">L'Arsenal Sport (50+ Outils)</h3>
-                         <div id="sp-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-                    </div>
-                </div>
-                 <div class="lg:col-span-1">
-                    <div class="glass rounded-[2rem] p-6">
-                        <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 opacity-50 text-rose-400">Flux Sport (Live)</h3>
-                        <div id="sport-google-feed" class="space-y-2 text-sm min-h-[150px]"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="container mx-auto px-4 max-w-7xl space-y-8">
+            <h2 class="text-3xl font-bold text-white">Outils Sport</h2>
+            <div id="sp-tools-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <h2 class="text-3xl font-bold text-white mt-8">Actualités Sport</h2>
+            <div id="sport-google-feed" class="space-y-2 text-sm"></div>
         </div>
     </section>
 
-    <!-- Footer / Admin Hidden Trigger -->
     <footer class="text-center py-10 opacity-40 hover:opacity-100 transition-opacity">
         <div class="flex flex-col items-center gap-4">
             <p class="text-[10px] text-slate-500">Données non visibles ? Lancez l'actualisation.</p>
-            <button onclick="window.seedAllCategories()" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-purple-900/40 transition-colors">⚡️ Actualiser les Articles (Live 24h)</button>
+            <button onclick="refreshArticles()" class="text-[10px] uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-purple-900/40 transition-colors">⚡️ Actualiser les Articles</button>
         </div>
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, query, limit, addDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    <script>
+        // Fonction pour changer de vue
+        function switchView(view) {
+            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+            
+            const nav = document.getElementById('main-nav');
+            if (view === 'home') {
+                nav.classList.add('hidden');
+            } else {
+                nav.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        let user = null;
-
-        // --- DRONE DATABASE ---
-        const droneDB = [
-            { name: "MQ-9 Reaper X", power: "Turboprop 900ch", gen: "5ème Gen", year: 2024, type: "Militaire", price: "32M€" },
-            { name: "DJI Agras T50", power: "Batterie 30Ah", gen: "V3", year: 2023, type: "Civil", price: "18.5k€" },
-            { name: "Black Hornet 4", power: "Micro-Rotor", gen: "Nano", year: 2025, type: "Militaire", price: "195k€" },
-            { name: "Autel Titan", power: "Quadri-Moteur", gen: "V2 Pro", year: 2024, type: "Civil", price: "12.4k€" },
-            { name: "Heron TP-XP", power: "1200ch Diesel", gen: "MALE", year: 2022, type: "Militaire", price: "14M€" },
-            { name: "Skydio X10", power: "IA Autonome", gen: "V10", year: 2024, type: "Civil", price: "3.2k€" },
-            { name: "Bayraktar TB2", power: "100ch Rotax", gen: "MALE", year: 2020, type: "Militaire", price: "5M€" },
-            { name: "Global Hawk", power: "Turbofan", gen: "HALE", year: 2019, type: "Militaire", price: "130M€" },
-            { name: "Parrot Anafi USA", power: "32x Zoom", gen: "V2", year: 2021, type: "Civil", price: "7k€" },
-            { name: "Wing Loong II", power: "Turboprop", gen: "MALE", year: 2022, type: "Militaire", price: "2M€" }
-        ];
-
+        // Exemple d'outils pour chaque catégorie
         const toolsData = {
             ia: [
-                { name: "Canva Pro", hook: "Le design démocratisé.", tag: "DESIGN", intro: "Plateforme de création graphique tout-en-un avec IA intégrée." },
-                { name: "Midjourney", hook: "L'art génératif.", tag: "ART", intro: "Générateur d'images IA de pointe accessible via Discord." },
-                { name: "ChatGPT 4", hook: "Le cerveau numérique.", tag: "CHAT", intro: "Modèle de langage avancé pour la rédaction et le code." },
-                { name: "Claude 3.5", hook: "Raisonnement pur.", tag: "CODE", intro: "IA d'Anthropic spécialisée dans le code et l'analyse longue." },
-                { name: "Perplexity", hook: "Recherche 2.0.", tag: "SEARCH", intro: "Moteur de réponse temps réel citant ses sources." },
-                { name: "GitHub Copilot", hook: "Pair programmer.", tag: "CODE", intro: "L'assistant de code IA le plus utilisé au monde." },
-                { name: "Tabnine", hook: "Autocomplétion.", tag: "CODE", intro: "Complétion de code contextuelle et privée." }
-                // ... Suite des outils omise pour concision, gardés en mémoire système
+                { name: "ChatGPT 4", hook: "Le cerveau numérique", intro: "Modèle de langage avancé pour la rédaction et le code." },
+                { name: "Midjourney", hook: "L'art génératif", intro: "Générateur d'images IA de pointe accessible via Discord." }
             ],
             fi: [
-                { name: "TradingView", hook: "L'œil des marchés.", tag: "CHART", intro: "Plateforme de graphiques et réseau social pour traders." },
-                { name: "CoinGecko", hook: "Data Crypto.", tag: "DATA", intro: "Agrégateur de données crypto indépendant et complet." }
+                { name: "CoinGecko", hook: "Data Crypto", intro: "Agrégateur de données crypto indépendant et complet." },
+                { name: "Binance", hook: "Exchange #1", intro: "La plus grande bourse de crypto-monnaies au monde." }
             ],
             sp: [
-                { name: "Strava", hook: "Réseau social.", tag: "RUN", intro: "Suivi GPS et réseau social pour athlètes." },
-                { name: "Whoop", hook: "Récupération.", tag: "WEAR", intro: "Bracelet de performance mesurant la contrainte et le sommeil." }
+                { name: "Strava", hook: "Réseau social", intro: "Suivi GPS et réseau social pour athlètes." },
+                { name: "Garmin Connect", hook: "Données GPS", intro: "Plateforme d'analyse pour les montres Garmin." }
             ]
         };
 
-        // --- EXPOSITION GLOBALE DES FONCTIONS ---
-        // Nécessaire car les fonctions dans un type="module" ne sont pas globales par défaut
-        
-        window.switchView = (view) => {
-            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
-            const target = document.getElementById(`view-${view}`);
-            if(target) target.classList.add('active');
-            
-            const nav = document.getElementById('main-nav');
-            if(view === 'home') nav.classList.add('hidden');
-            else {
-                nav.classList.remove('hidden');
-                document.documentElement.style.setProperty('--accent', getComputedStyle(document.body).getPropertyValue(`--${view === 'ia' ? 'ia' : view === 'finance' ? 'fi' : 'sp'}`));
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.toggleDronePage = () => { 
-            document.getElementById('ia-main-content').classList.toggle('hidden'); 
-            document.getElementById('drone-page').classList.toggle('hidden'); 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.toggleModal = (id) => {
-            const modal = document.getElementById(id);
-            if(modal) modal.classList.toggle('hidden');
-        };
-
-        window.showArticle = (d) => { 
-            window.toggleModal('aiModal'); 
-            const img = document.getElementById('modalCoverImage');
-            const content = document.getElementById('aiContent');
-            if(img) img.src = d.imageUrl || ""; 
-            if(content) content.innerHTML = marked.parse(d.content || ""); 
-        };
-
-        window.generateRapidTags = async () => {
-            const input = document.getElementById('rapidTagInput');
-            const output = document.getElementById('rapidTagOutput');
-            if(!input || !output || !input.value) return;
-            
-            output.classList.remove('hidden');
-            const tags = input.value.split(' ').map(t => `#${t}`).join(', ');
-            document.getElementById('tags-comma').innerHTML = `<span class='text-xs opacity-60'>${tags}</span>`;
-        };
-
-        window.seedAllCategories = async () => {
-            if (!user) return;
-            const confirmSeed = confirm("Générer de nouveaux articles d'actualité ?");
-            if(!confirmSeed) return;
-            alert("Lancement de la synchronisation des flux...");
-        };
-
-        // --- RENDER FUNCTIONS ---
-        function renderDrones() {
-            const grid = document.getElementById('drone-grid');
-            if(!grid) return;
-            grid.innerHTML = droneDB.map(d => {
-                const badgeClass = d.type === "Militaire" ? "militaire-badge" : "civil-badge";
-                return `
-                <div class="drone-card p-6 rounded-3xl flex flex-col justify-between h-full group transition-all duration-500">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${badgeClass}">${d.type}</span>
-                            <span class="text-xs font-mono opacity-40 border border-white/10 px-2 py-1 rounded-md">${d.year}</span>
-                        </div>
-                        <h4 class="text-2xl font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">${d.name}</h4>
-                        <div class="w-full h-px bg-white/10 my-4"></div>
-                        <div class="space-y-2 text-sm opacity-70">
-                            <div class="flex justify-between"><span>⚡️ Puissance</span> <span class="text-white font-mono">${d.power}</span></div>
-                            <div class="flex justify-between"><span>🧬 Génération</span> <span class="text-white font-mono">${d.gen}</span></div>
-                        </div>
-                    </div>
-                    <div class="mt-6 pt-4 border-t border-dashed border-white/20 flex justify-between items-end">
-                        <span class="text-[10px] uppercase opacity-50">Prix Total Est.</span>
-                        <span class="text-xl font-black text-white">${d.price}</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
+        // Fonction pour afficher les outils dans le DOM
         function renderTools(gridId, tools) {
             const grid = document.getElementById(gridId);
             if(!grid) return;
             grid.innerHTML = tools.map(t => `
-                <div class="tool-card rounded-2xl p-6 cursor-pointer group h-full flex flex-col" onclick="window.open('https://google.com/search?q=${t.name} ${t.tag}', '_blank')">
+                <div class="tool-card rounded-2xl p-6 cursor-pointer group h-full flex flex-col" onclick="window.open('https://google.com/search?q=${t.name}', '_blank')">
                     <div class="flex justify-between items-start mb-4">
-                        <span class="text-[9px] font-bold bg-white/10 px-2 py-1 rounded text-white group-hover:bg-white/20 transition-colors">${t.tag}</span>
+                        <span class="text-[9px] font-bold bg-white/10 px-2 py-1 rounded text-white group-hover:bg-white/20 transition-colors">${t.hook}</span>
                     </div>
                     <h4 class="font-bold text-white text-lg mb-1">${t.name}</h4>
-                    <p class="text-xs font-bold opacity-80 italic mb-2">"${t.hook}"</p>
-                    <p class="text-[11px] text-slate-400 leading-relaxed mt-auto">${t.intro || ''}</p>
-                </div>`).join('');
+                    <p class="text-xs font-bold opacity-80 italic mb-2 text-[var(--accent)]">"${t.hook}"</p>
+                    <p class="text-[11px] text-slate-400 leading-relaxed mt-auto">${t.intro}</p>
+                </div>
+            `).join('');
         }
 
-        async function initData() {
-            if (!user) return;
-            renderDrones();
-            renderTools('ia-tools-grid', toolsData.ia);
-            renderTools('fi-tools-grid', toolsData.fi);
-            renderTools('sp-tools-grid', toolsData.sp);
-            
-            loadArticles('articles', 'ia-articles-grid', 'purple');
-            loadArticles('articles_finance', 'fi-articles-grid', 'emerald');
-            loadArticles('articles_sport', 'sp-articles-grid', 'rose');
-            loadArticles('articles_drones', 'drone-news-grid', 'purple');
-            
-            startTicker('Intelligence Artificielle Tech', 'ia-google-feed');
-            startTicker('Bourse Finance Marchés', 'finance-google-feed');
-            startTicker('Sport Performance Athlète', 'sport-google-feed');
-            
-            fetchCryptoPrices();
-        }
-
-        async function startTicker(q, containerId) {
+        // Fonction pour charger les actualités via Google RSS Feed
+        async function loadRSSFeed(query, containerId) {
             const container = document.getElementById(containerId);
             if(!container) return;
+            container.innerHTML = '<div class="animate-pulse">Chargement...</div>';
+            
             try {
-                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=fr&gl=FR&ceid=FR:fr`;
+                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=fr&gl=FR&ceid=FR:fr`;
                 const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
                 const data = await res.json();
-                if(data.status === 'ok') {
-                    container.innerHTML = data.items.slice(0, 6).map(i => `
+                
+                if (data.status === 'ok' && data.items.length > 0) {
+                    container.innerHTML = data.items.map(i => `
                         <div class="p-3 border-b border-white/5 hover:bg-white/5 cursor-pointer group transition-colors" onclick="window.open('${i.link}', '_blank')">
-                            <p class="text-[11px] font-bold text-white line-clamp-2 group-hover:text-[var(--accent)] transition-colors">${i.title}</p>
-                            <span class="text-[9px] opacity-40 uppercase font-mono">${new Date(i.pubDate).toLocaleTimeString('fr-FR')}</span>
-                        </div>`).join('');
+                            <p class="text-[11px] font-bold text-white line-clamp-2 group-hover:text-[var(--accent)]">${i.title}</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-[9px] opacity-40">${new Date(i.pubDate).toLocaleTimeString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    throw new Error("Flux vide");
                 }
-            } catch(e) { container.innerHTML = "<div class='p-4 text-[10px] opacity-40 italic'>Flux indisponible</div>"; }
-        }
-
-        function loadArticles(colName, gridId, color) {
-            if (!user) return;
-            const container = document.getElementById(gridId);
-            if(!container) return;
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', colName);
-            onSnapshot(query(colRef), (snap) => {
-                container.innerHTML = '';
-                if(snap.empty) {
-                    container.innerHTML = `<div class="col-span-full py-8 text-center opacity-40 text-xs italic">Aucun article publié récemment.</div>`;
-                    return;
-                }
-                let docs = [];
-                snap.forEach(doc => docs.push(doc.data()));
-                docs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                docs.slice(0, 10).forEach(d => {
-                    const card = document.createElement('div');
-                    card.className = "article-bento rounded-[2rem] cursor-pointer group flex flex-col h-full";
-                    card.onclick = () => window.showArticle(d);
-                    card.innerHTML = `
-                        <div class="h-40 w-full overflow-hidden relative">
-                             <img src="${d.imageUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://via.placeholder.com/800x400?text=News'">
-                             <div class="absolute inset-0 bg-gradient-to-t from-[#020617] to-transparent opacity-60"></div>
-                             <div class="absolute bottom-4 left-6 right-6">
-                                <span class="text-[9px] font-black uppercase text-${color}-400 mb-1 block">${d.category || 'Analyse'}</span>
-                                <h4 class="text-white font-bold text-sm leading-tight line-clamp-2">${d.title}</h4>
-                             </div>
-                        </div>`;
-                    container.appendChild(card);
-                });
-            }, (error) => console.error("Firestore error on " + colName, error));
-        }
-        
-        async function fetchCryptoPrices() {
-            try {
-                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=10&page=1&sparkline=false');
-                const data = await res.json();
-                const tbody = document.getElementById('crypto-table-body');
-                if (Array.isArray(data)) {
-                    tbody.innerHTML = data.map(coin => `
-                        <tr class="crypto-row">
-                            <td class="crypto-cell flex items-center gap-2"><img src="${coin.image}" class="w-5 h-5 rounded-full"><span class="font-bold text-white">${coin.name}</span></td>
-                            <td class="crypto-cell text-white font-bold">${coin.current_price.toLocaleString('fr-FR', {style:'currency', currency:'EUR'})}</td>
-                            <td class="crypto-cell font-bold ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}">${coin.price_change_percentage_24h >= 0 ? '▲' : '▼'} ${Math.abs(coin.price_change_percentage_24h).toFixed(2)}%</td>
-                            <td class="crypto-cell hidden md:table-cell opacity-70">${(coin.market_cap / 1000000000).toFixed(2)} Mrd €</td>
-                        </tr>`).join('');
-                }
-            } catch(e) { }
-        }
-
-        // --- AUTH INIT FLOW ---
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
-            } else {
-                await signInAnonymously(auth);
+            } catch (e) {
+                console.warn("Erreur RSS:", e);
+                container.innerHTML = "Erreur de chargement des flux.";
             }
-        };
+        }
 
-        initAuth();
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (u) initData();
-        });
-
-        // Horloge Live
-        setInterval(() => { 
-            const el = document.getElementById('live-time'); 
-            if(el) el.innerText = new Date().toLocaleTimeString('fr-FR'); 
-        }, 1000);
+        // Charger les outils et les actualités pour chaque catégorie au démarrage
+        renderTools('ia-tools-grid', toolsData.ia);
+        renderTools('fi-tools-grid', toolsData.fi);
+        renderTools('sp-tools-grid', toolsData.sp);
+        loadRSSFeed('Intelligence Artificielle', 'ia-google-feed');
+        loadRSSFeed('Finance', 'finance-google-feed');
+        loadRSSFeed('Sport', 'sport-google-feed');
     </script>
 </body>
 </html>
